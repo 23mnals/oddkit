@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>staircase-reveal preview</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: "JetBrains Mono", "Fira Mono", ui-monospace, monospace;
+    overflow: hidden;
+  }
+
+  /* ── scroll container ── */
+  .scroll-root {
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+  }
+  .scroll-root::-webkit-scrollbar { display: none; }
+
+  /* ── each section ── */
+  .page {
+    height: 100vh;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    user-select: none;
+    position: relative;
+  }
+
+  .page-num {
+    font-size: 10px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    opacity: .4;
+  }
+  .page-title {
+    font-size: clamp(32px, 6vw, 72px);
+    font-weight: 800;
+    letter-spacing: -.04em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .page-sub {
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    opacity: .45;
+  }
+
+  /* scroll hint arrow at bottom of page 1 */
+  .hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    opacity: .35;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    animation: hint-bob 2s ease-in-out infinite;
+  }
+  .hint-arrow {
+    width: 1px;
+    height: 28px;
+    position: relative;
+    overflow: visible;
+  }
+  .hint-arrow::before {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 100%;
+    background: currentColor;
+    opacity: .5;
+  }
+
+  @keyframes hint-bob {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%       { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ── section palette ── */
+  /* 01 cream */
+  [data-idx="0"] { background: #EDE8DC; color: #111; }
+  /* 02 pink */
+  [data-idx="1"] { background: #FFB3C1; color: #1A0008; }
+  /* 03 near-black */
+  [data-idx="2"] { background: #111111; color: #F5F5F0; }
+  /* 04 amber */
+  [data-idx="3"] { background: #F5C45E; color: #1C0E00; }
+  /* 05 slate-blue */
+  [data-idx="4"] { background: #C5D8F9; color: #0A1A3A; }
+
+  /* ── nav dots ── */
+  .dots {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 200;
+    mix-blend-mode: exclusion;
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: .25;
+    cursor: pointer;
+    transition: opacity .2s, transform .2s;
+  }
+  .dot.active {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+</style>
+<script src="/staircase-reveal.js"></script>
+</head>
+<body>
+
+<div class="scroll-root" id="root">
+
+  <section class="page" data-idx="0" data-color="#EDE8DC">
+    <span class="page-num">01 / 05</span>
+    <h1 class="page-title">Staircase<br>Reveal</h1>
+    <p class="page-sub">scroll-driven color transition</p>
+    <div class="hint">
+      <span>scroll</span>
+      <span class="hint-arrow"></span>
+    </div>
+  </section>
+
+  <section class="page" data-idx="1" data-color="#FFB3C1">
+    <span class="page-num">02 / 05</span>
+    <h1 class="page-title">Pink</h1>
+    <p class="page-sub">bands match this section's color</p>
+  </section>
+
+  <section class="page" data-idx="2" data-color="#111111">
+    <span class="page-num">03 / 05</span>
+    <h1 class="page-title">Dark</h1>
+    <p class="page-sub">eleven bands, one diagonal sweep</p>
+  </section>
+
+  <section class="page" data-idx="3" data-color="#F5C45E">
+    <span class="page-num">04 / 05</span>
+    <h1 class="page-title">Amber</h1>
+    <p class="page-sub">stagger: 68ms · duration: 760ms</p>
+  </section>
+
+  <section class="page" data-idx="4" data-color="#C5D8F9">
+    <span class="page-num">05 / 05</span>
+    <h1 class="page-title">Blue</h1>
+    <p class="page-sub">random direction each reveal</p>
+  </section>
+
+</div>
+
+<!-- nav dots -->
+<nav class="dots" id="dots">
+  <span class="dot active" data-target="0"></span>
+  <span class="dot" data-target="1"></span>
+  <span class="dot" data-target="2"></span>
+  <span class="dot" data-target="3"></span>
+  <span class="dot" data-target="4"></span>
+</nav>
+
+<script>
+  (function () {
+    var pages   = Array.prototype.slice.call(document.querySelectorAll('.page'));
+    var dots    = Array.prototype.slice.call(document.querySelectorAll('.dot'));
+    var root    = document.getElementById('root');
+    var current = 0;
+    var locked  = false; // prevent double-fire during reveal animation
+
+    // ── single StaircaseReveal instance (position:fixed, covers viewport) ──
+    var reveal = new StaircaseReveal({
+      bandCount:  11,
+      coverColor: pages[0].dataset.color, // start with section 01's color
+      staggerMs:  68,
+      bandDur:    760,
+    });
+
+    // play initial reveal on load
+    reveal.play();
+
+    // ── dot navigation ──
+    function setActiveDot(idx) {
+      dots.forEach(function (d, i) {
+        d.classList.toggle('active', i === idx);
+      });
+    }
+
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        var target = parseInt(this.dataset.target, 10);
+        if (target === current || locked) return;
+        scrollToSection(target);
+      });
+    });
+
+    function scrollToSection(idx) {
+      pages[idx].scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ── IntersectionObserver: fire reveal when a new section is ≥ 55% visible ──
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+
+        var idx   = parseInt(entry.target.dataset.idx, 10);
+        var color = entry.target.dataset.color;
+
+        if (idx === current) return; // same section, ignore
+        if (locked) return;          // mid-reveal, ignore
+
+        locked  = true;
+        current = idx;
+        setActiveDot(idx);
+
+        // replay with the destination section's color
+        reveal.replay(null, color);
+
+        // unlock after reveal finishes (11 bands × 68ms stagger + 760ms + buffer)
+        var unlockAfter = (11 - 1) * 68 + 760 + 200;
+        setTimeout(function () { locked = false; }, unlockAfter);
+      });
+    }, { threshold: 0.55 });
+
+    pages.forEach(function (p) { observer.observe(p); });
+  })();
+</script>
+
+</body>
+</html>

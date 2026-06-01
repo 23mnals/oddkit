@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cube-word-stack preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; background: #F3EFE8; }
+
+    /* Placeholder SVG ornaments rendered inline */
+    [data-anchor] { display: none; }
+  </style>
+  <script src="/cube-word-stack.js"></script>
+</head>
+<body>
+
+<cube-word-stack
+  text="A|collective|of|Odd Minds|brings|new|angles|with|meaning"
+  bg="#F3EFE8"
+  block="#FFFFFF"
+  ink="#111111"
+  font='"Georgia", serif'
+  font-min="28px"
+  font-vw="3.8vw"
+  font-max="68px">
+
+  <!-- Placeholder ornaments — swap src= for your SVGs -->
+  <img data-anchor="top-right"    data-offset="44"  data-size="72" data-vertical="8%"
+       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Ccircle cx='36' cy='36' r='28' stroke='%23111' stroke-width='2' fill='none'/%3E%3Cline x1='36' y1='8' x2='36' y2='64' stroke='%23111' stroke-width='2'/%3E%3Cline x1='8' y1='36' x2='64' y2='36' stroke='%23111' stroke-width='2'/%3E%3C/svg%3E" alt="">
+
+  <img data-anchor="top-left"     data-offset="36"  data-size="80" data-vertical="20%"
+       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Cpath d='M40 8 L72 56 L8 56 Z' stroke='%23111' stroke-width='2' fill='none'/%3E%3C/svg%3E" alt="">
+
+  <img data-anchor="bottom-left"  data-offset="140" data-size="64" data-vertical="22%"
+       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='8' y='8' width='48' height='48' stroke='%23111' stroke-width='2' fill='none' rx='4'/%3E%3Cpath d='M20 32 h24 M32 20 v24' stroke='%23111' stroke-width='2'/%3E%3C/svg%3E" alt="">
+
+  <img data-anchor="bottom-right" data-offset="72"  data-size="68" data-vertical="12%"
+       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 68 68'%3E%3Cpath d='M34 6 L62 56 H6 Z' stroke='%23111' stroke-width='2' fill='none'/%3E%3Ccircle cx='34' cy='34' r='8' stroke='%23111' stroke-width='2' fill='none'/%3E%3C/svg%3E" alt="">
+
+</cube-word-stack>
+
+</body>
+</html>
