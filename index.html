@@ -15,6 +15,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
 <style>
+@font-face {
+  font-family: 'Alpha Lyrae';
+  src: url('https://cdn.jsdelivr.net/gh/vegaprotocol/alpha-lyrae/AlphaLyrae-Medium.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/vegaprotocol/alpha-lyrae/AlphaLyrae-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+<style>
 :root {
   --bg:       #EBEBE5;
   --ink:      #0A0A0A;
@@ -72,8 +82,9 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--ink);color:var(--
 .comp-category{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
 .tags{display:flex;gap:6px}
 .tag{font-family:var(--mono);font-size:9.5px;font-weight:500;border:1px solid var(--ink);padding:2px 8px;letter-spacing:.05em;text-transform:uppercase}
-.comp-title{font-family:'Silkscreen','Courier New',monospace;font-size:38px;font-weight:700;letter-spacing:.01em;line-height:1.1;text-transform:uppercase;margin-bottom:0}
-.comp-desc{font-size:13.5px;color:var(--ink-2);line-height:1.72;max-width:440px}
+.comp-title{font-family:'Alpha Lyrae','Silkscreen',monospace;font-size:40px;font-weight:500;letter-spacing:.02em;line-height:1.08;text-transform:uppercase;margin-bottom:0}
+/* no max-width — container's 52px padding already aligns right edge with left */
+.comp-desc{font-size:13.5px;color:var(--ink-2);line-height:1.72;}
 
 /* ── Sections ── */
 .section{padding:28px 52px;border-bottom:var(--border-1)}
