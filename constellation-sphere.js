@@ -83,9 +83,16 @@
       this._dragYaw     = 0;  this._dragPitch = 0;
       this._isDragging  = false;
       this._isHovered   = false;
+      this._hoverPause  = true;   // feature toggle — can be set externally
       this._invQuat     = new THREE.Quaternion();
       this._rafId       = null;
       this._lastT       = 0;
+    }
+
+    get hoverPause() { return this._hoverPause; }
+    set hoverPause(val) {
+      this._hoverPause = !!val;
+      if (!this._hoverPause) this._isHovered = false; // clear stale state
     }
 
     static get observedAttributes() { return ['names']; }
@@ -102,17 +109,11 @@
       this._build();
       this._rafId = requestAnimationFrame(t => { this._lastT = t; this._tick(t); });
       window.addEventListener('resize', this._onResize = () => this._resize());
-      // Hover-pause: listen on host element so moving into the names overlay
-      // doesn't trigger a false mouseleave on the .three container.
-      this.addEventListener('mouseenter', this._onMouseEnter = () => { this._isHovered = true; });
-      this.addEventListener('mouseleave', this._onMouseLeave = () => { this._isHovered = false; });
     }
 
     disconnectedCallback() {
       cancelAnimationFrame(this._rafId);
       window.removeEventListener('resize', this._onResize);
-      this.removeEventListener('mouseenter', this._onMouseEnter);
-      this.removeEventListener('mouseleave', this._onMouseLeave);
     }
 
     _build() {
@@ -227,6 +228,10 @@
       container.addEventListener('pointerup',     endDrag);
       container.addEventListener('pointercancel', endDrag);
 
+      // Hover-pause — only on .three (the 3D sphere area), not the whole component.
+      container.addEventListener('mouseenter', () => { this._isHovered = true; });
+      container.addEventListener('mouseleave', () => { this._isHovered = false; });
+
       // Hover names
       const items = [...ul.querySelectorAll('li')];
       items.forEach((li, i) => {
@@ -247,7 +252,7 @@
     _tick(t) {
       const dt = Math.min(64, t - this._lastT) / 1000;
       this._lastT = t;
-      if (!this._isDragging && !this._isHovered) {
+      if (!this._isDragging && !(this._isHovered && this._hoverPause)) {
         this._yaw   += dt * this._rotateSpeed;
         this._pitch += Math.sin(t * 0.00018) * dt * 0.05;
       }

@@ -115,6 +115,15 @@ cube-word-stack>img[data-anchor]{display:none!important}
 .cp-toggle{display:flex;height:32px;border:1px solid var(--ink);overflow:hidden}
 .cp-toggle-btn{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:0 14px;display:flex;align-items:center;cursor:pointer;transition:background .1s,color .1s;background:transparent;color:var(--ink)}
 .cp-toggle-btn.active{background:var(--ink);color:var(--bg)}
+/* Switch */
+.cp-switch-row{display:flex;align-items:center;justify-content:space-between;height:32px}
+.cp-switch-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.cp-switch{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0}
+.cp-switch input{opacity:0;width:0;height:0;position:absolute}
+.cp-switch-slider{position:absolute;inset:0;background:transparent;border:1px solid var(--ink);cursor:pointer;transition:background .15s}
+.cp-switch-slider::before{content:'';position:absolute;width:12px;height:12px;left:3px;top:3px;background:var(--ink);transition:transform .15s}
+.cp-switch input:checked + .cp-switch-slider{background:var(--ink)}
+.cp-switch input:checked + .cp-switch-slider::before{transform:translateX(16px);background:var(--bg)}
 /* Icon slots */
 .icon-slots{display:flex;gap:12px;flex-wrap:wrap}
 .icon-slot{display:flex;flex-direction:column;gap:6px;align-items:center}
@@ -857,6 +866,18 @@ Quinn</textarea>
             </div>
           </div>
 
+          <!-- Interaction -->
+          <div class="cp-group">
+            <div class="cp-group-label">Interaction</div>
+            <div class="cp-switch-row">
+              <span class="cp-switch-label">Hover to pause rotation</span>
+              <label class="cp-switch">
+                <input type="checkbox" id="cs-hover-pause" checked onchange="csToggleHoverPause(this)">
+                <span class="cp-switch-slider"></span>
+              </label>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -1169,6 +1190,15 @@ function initCS() {
   cs.setAttribute('bg',           bg);
   cs.setAttribute('label',        'The Collective · ' + (names.split(',').length));
   wrap.appendChild(cs);
+
+  // Apply hover-pause switch state (persists across rebuilds)
+  const hpSwitch = document.getElementById('cs-hover-pause');
+  cs.hoverPause = hpSwitch ? hpSwitch.checked : true;
+}
+
+function csToggleHoverPause(input) {
+  const cs = document.getElementById('cs-el');
+  if (cs) cs.hoverPause = input.checked;
 }
 </script>
 </body>
