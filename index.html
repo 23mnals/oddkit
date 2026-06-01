@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Oddkit — Component Library</title>
+<!-- Three.js r140 global builds — must come before constellation-sphere.js -->
+<script src="https://unpkg.com/three@0.140.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.140.0/examples/js/renderers/CSS3DRenderer.js"></script>
+<script src="constellation-sphere.js"></script>
+<!-- Favicon: staircase mark on dark bg -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%230A0A0A'/%3E%3Crect x='4' y='5' width='16' height='6' fill='%23EBEBE5'/%3E%3Crect x='9' y='12' width='16' height='6' fill='%23EBEBE5'/%3E%3Crect x='14' y='19' width='16' height='6' fill='%23EBEBE5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:       #EBEBE5;
+  --ink:      #0A0A0A;
+  --ink-2:    #3A3A38;
+  --accent:   #FF3B1F;
+  --code-bg:  #0A0A0A;
+  --code-ink: #F0EDE5;
+  --sans:     "Plus Jakarta Sans", system-ui, sans-serif;
+  --mono:     "JetBrains Mono", "Courier New", monospace;
+  --border:   2px solid #0A0A0A;
+  --border-1: 1px solid rgba(10,10,10,0.15);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{
+  font-family:var(--sans);background:var(--bg);
+  color:var(--ink);font-size:14px;line-height:1.55;
+}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit;border:none;background:none}
+code{font-family:var(--mono);font-size:11.5px;background:var(--ink);color:var(--bg);padding:2px 6px}
+
+/* ── Layout ── */
+.shell{display:flex;min-height:100vh}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:224px;min-width:224px;height:100vh;position:sticky;top:0;
+  border-right:var(--border);display:flex;flex-direction:column;overflow-y:auto;
+  background:var(--bg);
+}
+.brand{padding:20px 20px 18px;border-bottom:var(--border-1)}
+.brand-name{line-height:0;display:block}
+.brand-sub{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-top:5px}
+.nav{flex:1}
+.nav-group-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);padding:16px 20px 9px;border-bottom:var(--border-1);border-top:var(--border-1)}
+.nav-item{display:block;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);padding:11px 20px;border-bottom:var(--border-1);cursor:pointer;transition:background .08s}
+.nav-item:hover{background:rgba(10,10,10,.07)}
+.nav-item.active{background:var(--ink);color:var(--bg);font-weight:700}
+.sidebar-footer{padding:14px 20px;border-top:var(--border-1);margin-top:auto}
+.version{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--ink-2)}
+
+/* ── Main ── */
+.main{flex:1;min-width:0}
+.page{display:none}
+.page.active{display:flex;flex-direction:column}
+
+/* ── Component Header ── */
+.comp-header{padding:44px 52px 40px;border-bottom:var(--border)}
+.comp-meta{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.comp-category{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.tags{display:flex;gap:6px}
+.tag{font-family:var(--mono);font-size:9.5px;font-weight:500;border:1px solid var(--ink);padding:2px 8px;letter-spacing:.05em;text-transform:uppercase}
+.comp-title{font-family:var(--sans);font-size:56px;font-weight:800;letter-spacing:-.035em;line-height:.95;text-transform:uppercase;margin-bottom:20px}
+.comp-desc{font-size:14px;color:var(--ink-2);line-height:1.75;max-width:500px}
+
+/* ── Sections ── */
+.section{padding:40px 52px;border-bottom:var(--border-1)}
+.section:last-child{border-bottom:none}
+.section-eyebrow{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.section-eyebrow::after{content:'';flex:1;height:1px;background:rgba(10,10,10,.15)}
+.prose{font-size:14px;color:var(--ink-2);line-height:1.75}
+
+/* ── Preview card ── */
+.preview-card,.sr-demo-card{border:var(--border);overflow:hidden}
+.tab-bar{display:flex;align-items:stretch;border-bottom:var(--border);height:46px}
+.tab-btn{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);padding:0 20px;border-right:var(--border-1);display:flex;align-items:center;transition:background .08s,color .08s}
+.tab-btn:hover{background:rgba(10,10,10,.07);color:var(--ink)}
+.tab-btn.active{background:var(--ink);color:var(--bg)}
+.tab-actions{margin-left:auto;display:flex;align-items:center;padding-right:16px}
+.copy-btn{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);border:1px solid var(--ink);padding:5px 14px;display:none;transition:background .08s,color .08s}
+.copy-btn:hover{background:var(--ink);color:var(--bg)}
+.pane{display:none}.pane.vis{display:block}
+.preview-wrap{height:1000px;overflow:hidden;position:relative;background:#EBEBE5}
+cube-word-stack{min-height:0!important;height:1000px!important}
+cube-word-stack>img[data-anchor]{display:none!important}
+.code-pane{overflow:auto;max-height:600px;background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:12px;line-height:1.7;padding:28px 32px;white-space:pre}
+
+/* ── Customize Panel ── */
+.customize-panel{display:flex;flex-direction:column;gap:28px}
+.cp-group{display:flex;flex-direction:column;gap:10px}
+.cp-group-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.cp-controls{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
+.cp-field{display:flex;flex-direction:column;gap:5px}
+.cp-field-label{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+/* Color picker */
+.cp-color-wrap{display:flex;align-items:center;gap:0;border:1px solid var(--ink);overflow:hidden;height:32px}
+.cp-color-wrap input[type="color"]{width:32px;height:32px;border:none;padding:2px;cursor:pointer;background:none;outline:none}
+.cp-color-hex{font-family:var(--mono);font-size:11px;font-weight:500;padding:0 10px;line-height:1;color:var(--ink);min-width:72px}
+/* Range */
+.cp-range-wrap{display:flex;align-items:center;gap:8px;height:32px;border:1px solid var(--ink);padding:0 10px}
+.cp-range-wrap input[type="range"]{width:100px;accent-color:var(--ink);cursor:pointer;margin:0}
+.cp-range-val{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink);min-width:44px;text-align:right}
+/* Select */
+.cp-select{font-family:var(--mono);font-size:11px;letter-spacing:.02em;border:1px solid var(--ink);padding:7px 10px;background:transparent;color:var(--ink);cursor:pointer;height:32px;outline:none}
+/* Textarea */
+.cp-textarea{font-family:var(--mono);font-size:11.5px;border:1px solid var(--ink);padding:10px 12px;background:transparent;color:var(--ink);resize:vertical;min-height:56px;outline:none;letter-spacing:.01em;line-height:1.5;width:100%;max-width:440px}
+/* Toggle */
+.cp-toggle{display:flex;height:32px;border:1px solid var(--ink);overflow:hidden}
+.cp-toggle-btn{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:0 14px;display:flex;align-items:center;cursor:pointer;transition:background .1s,color .1s;background:transparent;color:var(--ink)}
+.cp-toggle-btn.active{background:var(--ink);color:var(--bg)}
+/* Icon slots */
+.icon-slots{display:flex;gap:12px;flex-wrap:wrap}
+.icon-slot{display:flex;flex-direction:column;gap:6px;align-items:center}
+.icon-thumb-wrap{width:64px;height:64px;border:1px solid var(--ink);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;overflow:hidden}
+.icon-thumb-wrap img{width:100%;height:100%;object-fit:contain;display:block}
+.icon-upload-overlay{position:absolute;inset:0;background:var(--ink);color:var(--bg);font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .1s}
+.icon-thumb-wrap:hover .icon-upload-overlay{opacity:1}
+.icon-slot-label{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);text-align:center}
+input[type="file"]{display:none}
+
+/* ── Staircase demo ── */
+.sr-demo-wrap{position:relative;height:790px;overflow:hidden;background:var(--ink);display:flex;align-items:center;justify-content:center}
+#sr-demo-curtain{position:absolute!important;z-index:5!important}
+.sr-demo-inner{text-align:center}
+.sr-demo-label{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:rgba(235,235,229,.3);margin-bottom:10px}
+.sr-demo-headline{font-family:var(--sans);font-size:64px;font-weight:800;letter-spacing:-.04em;text-transform:uppercase;color:var(--bg);line-height:1;margin-bottom:28px}
+.sr-replay-btn{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);background:var(--bg);border:2px solid var(--bg);padding:10px 26px;position:relative;z-index:10;transition:background .1s,color .1s}
+.sr-replay-btn:hover{background:transparent;color:var(--bg)}
+.sr-stats{display:flex;border-top:var(--border);background:var(--bg)}
+.sr-stat{flex:1;padding:16px 20px;border-right:var(--border-1)}
+.sr-stat:last-child{border-right:none}
+.sr-stat-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin-bottom:4px}
+.sr-stat-value{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--ink)}
+
+/* ── Install steps ── */
+.steps{display:flex;flex-direction:column}
+.step{display:flex;gap:20px;align-items:flex-start;padding:24px 0;border-bottom:var(--border-1)}
+.step:first-child{padding-top:0}.step:last-child{border-bottom:none;padding-bottom:0}
+.step-num{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--ink-2);min-width:20px;padding-top:1px;letter-spacing:.06em}
+.step-label{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:12px;letter-spacing:-.01em}
+.snippet{font-family:var(--mono);font-size:12px;background:var(--ink);color:var(--bg);padding:16px 20px;white-space:pre;overflow-x:auto;line-height:1.65}
+
+/* ── Props table ── */
+.prop-groups{display:flex;flex-direction:column;gap:36px}
+.prop-group-name{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:12px;padding-bottom:8px;border-bottom:var(--border-1)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);padding:8px 16px 8px 0;border-bottom:var(--border)}
+tbody td{padding:11px 16px 11px 0;border-bottom:var(--border-1);vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+.td-notes{color:var(--ink-2);font-size:12.5px}
+.dash{color:var(--ink-2)}
+
+/* ── Browser support ── */
+.support-chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--mono);font-size:11px;font-weight:500;border:1px solid var(--ink);padding:5px 12px}
+
+/* ── Marquee ── */
+.marquee-wrap{border-top:var(--border);height:36px;overflow:hidden;white-space:nowrap;display:flex;align-items:center;background:var(--bg);position:sticky;bottom:0;z-index:20}
+.marquee-track{display:inline-block;animation:marquee 24s linear infinite;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.marquee-wrap:hover .marquee-track{animation-play-state:paused}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mq-sep{margin:0 18px;color:var(--accent)}
+</style>
+
+<!-- Staircase Reveal (inlined — mirrors staircase-reveal.js) -->
+<script>
+(function(g){'use strict';
+var SID='staircase-reveal-style';
+function injectCSS(){if(document.getElementById(SID))return;var el=document.createElement('style');el.id=SID;el.textContent=['.sr-curtain{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;pointer-events:none;overflow:hidden}','.sr-curtain.is-blocking{pointer-events:auto}','.sr-curtain.is-done{display:none}','.sr-band{flex:1 1 0;width:100%;transform:translate3d(0,0,0);transition:transform var(--sr-band-dur,760ms) var(--sr-ease,cubic-bezier(0.76,0,0.18,1));will-change:transform}','.sr-band.go-left{transform:translate3d(-105%,0,0)}','.sr-band.go-right{transform:translate3d(105%,0,0)}','.sr-band.go-up{transform:translate3d(0,-105%,0)}','.sr-band.go-down{transform:translate3d(0,105%,0)}','.sr-curtain.axis-x{flex-direction:row}','.sr-curtain.axis-x .sr-band{width:auto;height:100%;flex:1 1 0}'].join('');document.head.appendChild(el);}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function SR(o){
+  o=o||{};this.bandCount=o.bandCount||11;this.coverColor=o.coverColor||'#EBEBE5';this.matchTarget=o.matchTarget||null;
+  this.staggerMs=o.staggerMs!=null?o.staggerMs:68;this.bandDur=o.bandDur!=null?o.bandDur:760;
+  this.ease=o.ease||'cubic-bezier(0.76,0,0.18,1)';this.axis=o.axis||'y';
+  this.zIndex=o.zIndex!=null?o.zIndex:9999;this.onRevealed=o.onRevealed||null;
+  this.sides=this.axis==='x'?['go-up','go-down']:['go-left','go-right'];this.orders=['top','bottom'];
+  this._pendingColor=null; // explicit one-off override set by replay(dir,color)
+  injectCSS();
+  this.el=o.mount||document.createElement('div');this.el.className='sr-curtain is-blocking';
+  if(this.axis==='x')this.el.classList.add('axis-x');this.el.setAttribute('aria-hidden','true');
+  this.el.style.zIndex=this.zIndex;this.el.style.setProperty('--sr-band-dur',this.bandDur+'ms');this.el.style.setProperty('--sr-ease',this.ease);
+  if(!o.mount)document.body.appendChild(this.el);
+  this._rebuildBands(); // blank bands — play() paints them
+}
+// Single color decision point, called ONLY inside play().
+// Priority: _pendingColor (explicit) > matchTarget > coverColor
+SR.prototype._resolveColor=function(){
+  if(this._pendingColor!=null){var c=this._pendingColor;this._pendingColor=null;return c;}
+  if(this.matchTarget){
+    var t=typeof this.matchTarget==='string'?document.querySelector(this.matchTarget):this.matchTarget;
+    if(t){var bg=window.getComputedStyle(t).backgroundColor;if(bg&&bg!=='transparent'&&bg!=='rgba(0, 0, 0, 0)')return bg;}
+  }
+  return this.coverColor;
+};
+SR.prototype._rebuildBands=function(){
+  this.el.innerHTML='';this.el.classList.remove('is-done');this.el.classList.add('is-blocking');
+  for(var i=0;i<this.bandCount;i++){var b=document.createElement('div');b.className='sr-band';this.el.appendChild(b);}
+};
+// play() is the ONLY place that resolves & paints color.
+SR.prototype.play=function(d){
+  var color=this._resolveColor(); // ← single decision point
+  var all=this.el.querySelectorAll('.sr-band');
+  for(var j=0;j<all.length;j++)all[j].style.setProperty('background-color',color,'important');
+  d=d||{};var side=d.side||pick(this.sides),order=d.order||pick(this.orders),self=this;
+  var bands=Array.prototype.slice.call(all);
+  bands.forEach(function(b,i){b.style.transitionDelay=((order==='top'?i:bands.length-1-i)*self.staggerMs)+'ms';});
+  requestAnimationFrame(function(){requestAnimationFrame(function(){bands.forEach(function(b){b.classList.add(side);});});});
+  var total=(bands.length-1)*this.staggerMs+this.bandDur+120;
+  setTimeout(function(){self.el.classList.remove('is-blocking');self.el.classList.add('is-done');if(typeof self.onRevealed==='function')self.onRevealed();},total);
+  return this;
+};
+// replay() just sets pending override (if any) + rebuilds DOM, then delegates to play().
+SR.prototype.replay=function(d,color){
+  if(color!==undefined)this._pendingColor=color; // play() will consume this once
+  this._rebuildBands();
+  var self=this;requestAnimationFrame(function(){requestAnimationFrame(function(){self.play(d);});});return this;
+};
+g.StaircaseReveal=SR;
+})(window);
+</script>
+
+<!-- Cube Word Stack (inlined) -->
+<script>
+(function(){if(window.customElements&&window.customElements.get('cube-word-stack'))return;const S=`*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:host{--bg:#EBEBE5;--block:#FFFFFF;--ink:#0A0A0A;--font:"Georgia",serif;--font-size:clamp(34px,4.4vw,72px);--ease-flip:cubic-bezier(0.45,0,0.55,1);--ease-push:cubic-bezier(0.22,1,0.36,1);--dur-flip:720ms;--dur-push:700ms;--perspective:900px;position:relative;display:block;width:100%;min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;overflow:hidden}.hero{position:relative;min-height:100%;display:flex;align-items:center;justify-content:center;padding:32px 24px;z-index:1}.stack{position:relative;display:flex;flex-direction:column;align-items:center;gap:0;z-index:2}.cube-wrap{perspective:var(--perspective);display:inline-block;line-height:0}.cube{position:relative;transform-style:preserve-3d;transition:transform var(--dur-flip) var(--ease-flip);display:inline-block;cursor:pointer;will-change:transform}.face{background:var(--block);color:var(--ink);font-size:var(--font-size);font-weight:500;font-family:inherit;padding:0.06em 0.22em 0.22em;white-space:nowrap;line-height:1.0;letter-spacing:-0.005em;backface-visibility:hidden;-webkit-backface-visibility:hidden}.face.front{position:relative;transform:translateZ(var(--half,0px))}.face.back,.face.right,.face.left{position:absolute;top:0;left:0;width:100%;height:100%}.face.right{transform:rotateY(90deg) translateZ(var(--half,0px))}.face.back{transform:rotateY(180deg) translateZ(var(--half,0px))}.face.left{transform:rotateY(-90deg) translateZ(var(--half,0px))}.deco{position:absolute;pointer-events:none;z-index:5;will-change:transform;transform:translate(var(--push-x,0px),var(--push-y,0px));transition:transform var(--dur-push) var(--ease-push)}.deco-inner{width:100%;height:100%;will-change:transform}.deco img{display:block;width:100%;height:100%}@keyframes floatA{0%,100%{transform:translate(0,0)rotate(0deg)}50%{transform:translate(6px,-9px)rotate(3deg)}}@keyframes floatB{0%,100%{transform:translate(0,0)rotate(0deg)}50%{transform:translate(-7px,5px)rotate(-4deg)}}@keyframes floatC{0%,100%{transform:translate(0,0)rotate(0deg)}50%{transform:translate(4px,7px)rotate(-2deg)}}@keyframes floatD{0%,100%{transform:translate(0,0)rotate(0deg)}50%{transform:translate(-5px,-6px)rotate(2.5deg)}}.anim-0 .deco-inner{animation:floatA 5.2s ease-in-out infinite}.anim-1 .deco-inner{animation:floatB 6.4s ease-in-out infinite -1.1s}.anim-2 .deco-inner{animation:floatC 4.8s ease-in-out infinite -2.0s}.anim-3 .deco-inner{animation:floatD 5.8s ease-in-out infinite -0.6s}`;class C extends HTMLElement{static get observedAttributes(){return['text','bg','block','ink','font','font-min','font-vw','font-max','push-max-x','push-max-y','push-falloff','push-hold','intro-stagger']}constructor(){super();this.attachShadow({mode:'open'});this._rot=new WeakMap();this._pushTimer=null;this._resizeRAF=null}connectedCallback(){this.shadowRoot.innerHTML=`<style>${S}</style><section class="hero"><div class="stack"></div></section>`;this._applyTokens();this._buildCubes();this._wireHover();this._scheduleInit();this._waitForIcons();this._onResize=this._onResize.bind(this);window.addEventListener('resize',this._onResize)}_waitForIcons(){if(this._iconObserver){this._iconObserver.disconnect();this._iconObserver=null}const t=()=>{if(this.querySelector(':scope > img[data-anchor]')){this._buildIcons();return true}return false};if(t())return;this._iconObserver=new MutationObserver(()=>{if(t()){this._iconObserver.disconnect();this._iconObserver=null}});this._iconObserver.observe(this,{childList:true})}disconnectedCallback(){window.removeEventListener('resize',this._onResize);clearTimeout(this._pushTimer);if(this._iconObserver)this._iconObserver.disconnect()}attributeChangedCallback(){if(!this.shadowRoot.querySelector('.stack'))return;this._applyTokens();this._buildCubes();this._wireHover();this._scheduleInit();this._waitForIcons()}_applyTokens(){const b=this.getAttribute('bg')||'#EBEBE5',bl=this.getAttribute('block')||'#FFFFFF',i=this.getAttribute('ink')||'#0A0A0A',f=this.getAttribute('font')||'"Georgia",serif',mn=this.getAttribute('font-min')||'34px',mv=this.getAttribute('font-vw')||'4.4vw',mx=this.getAttribute('font-max')||'72px';this.style.setProperty('--bg',b);this.style.setProperty('--block',bl);this.style.setProperty('--ink',i);this.style.setProperty('--font',f);this.style.setProperty('--font-size',`clamp(${mn},${mv},${mx})`)}_buildCubes(){const s=this.shadowRoot.querySelector('.stack');s.innerHTML='';(this.getAttribute('text')||'').replace(/\.+\s*$/,'').split('|').map(w=>w.trim()).filter(Boolean).forEach(w=>{const wr=document.createElement('div');wr.className='cube-wrap';wr.innerHTML='<div class="cube"><div class="face front">'+w+'</div><div class="face right">'+w+'</div><div class="face back">'+w+'</div><div class="face left">'+w+'</div></div>';s.appendChild(wr)})}_buildIcons(){const h=this.shadowRoot.querySelector('.hero');h.querySelectorAll('.deco').forEach(d=>d.remove());Array.from(this.querySelectorAll(':scope > img[data-anchor]')).forEach((src,idx)=>{const anchor=(src.dataset.anchor||'top-right').toLowerCase(),offset=parseFloat(src.dataset.offset||'60'),size=parseFloat(src.dataset.size||'80'),vert=src.dataset.vertical||'6%';const deco=document.createElement('div');deco.className='deco anim-'+(idx%4);deco.style.cssText=`width:${size}px;height:${size}px;position:absolute;`;({
+'top-left':()=>{deco.style.top=vert;deco.style.right=`calc(50% + ${offset}px)`},
+'top-right':()=>{deco.style.top=vert;deco.style.left=`calc(50% + ${offset}px)`},
+'bottom-left':()=>{deco.style.bottom=vert;deco.style.right=`calc(50% + ${offset}px)`},
+'bottom-right':()=>{deco.style.bottom=vert;deco.style.left=`calc(50% + ${offset}px)`}
+}[anchor]||(() => {deco.style.bottom=vert;deco.style.left=`calc(50% + ${offset}px)`}))();const inner=document.createElement('div');inner.className='deco-inner';const cl=src.cloneNode(true);['data-anchor','data-offset','data-size','data-vertical'].forEach(a=>cl.removeAttribute(a));cl.style.display='';inner.appendChild(cl);deco.appendChild(inner);h.appendChild(deco)});Array.from(this.querySelectorAll(':scope > img[data-anchor]')).forEach(s=>{s.style.display='none'})}_wireHover(){this.shadowRoot.querySelectorAll('.cube-wrap').forEach(wrap=>{const cube=wrap.querySelector('.cube');let busy=false;wrap.addEventListener('mouseenter',()=>{this._applyPush(wrap);if(busy)return;busy=true;const cur=this._rot.get(cube)??0,next=cur-90;this._rot.set(cube,next);cube.style.transform=`rotateY(${next}deg)`;setTimeout(()=>{busy=false},480)})})}_applyPush(w){const MX=parseFloat(this.getAttribute('push-max-x'))||70,MY=parseFloat(this.getAttribute('push-max-y'))||14,FA=parseFloat(this.getAttribute('push-falloff'))||280,HO=parseFloat(this.getAttribute('push-hold'))||3000,cr=w.getBoundingClientRect(),cy=cr.top+cr.height/2,cx=cr.left+cr.width/2;this.shadowRoot.querySelectorAll('.deco').forEach(d=>{const dr=d.getBoundingClientRect(),dy=dr.top+dr.height/2,dx=dr.left+dr.width/2,p=Math.max(0,1-Math.abs(cy-dy)/FA);d.style.setProperty('--push-x',(dx<cx?-1:1)*p*MX+'px');d.style.setProperty('--push-y',(dy<cy?-1:1)*p*MY+'px')});clearTimeout(this._pushTimer);this._pushTimer=setTimeout(()=>{this.shadowRoot.querySelectorAll('.deco').forEach(d=>{d.style.setProperty('--push-x','0px');d.style.setProperty('--push-y','0px')})},HO)}_measure(){this.shadowRoot.querySelectorAll('.cube').forEach(c=>{c.style.setProperty('--half',(c.querySelector('.front').offsetWidth/2)+'px')})}_preState(){const cs=this.shadowRoot.querySelectorAll('.cube');cs.forEach(c=>{c.style.transition='none';c.style.transform='rotateY(-90deg)';this._rot.set(c,-90)});void this.offsetWidth;cs.forEach(c=>{c.style.transition=''})}_intro(){const st=parseFloat(this.getAttribute('intro-stagger'))||110;Array.from(this.shadowRoot.querySelectorAll('.cube')).forEach((c,i)=>{setTimeout(()=>{const cur=this._rot.get(c)??-90,next=cur+90;this._rot.set(c,next);c.style.transform=`rotateY(${next}deg)`},220+i*st)})}_scheduleInit(){const run=()=>{this._measure();this._preState();requestAnimationFrame(()=>{this._measure();this._preState();this._intro()})};document.fonts?.ready?document.fonts.ready.then(run):run()}_onResize(){cancelAnimationFrame(this._resizeRAF);this._resizeRAF=requestAnimationFrame(()=>this._measure())}}customElements.define('cube-word-stack',C)})();
+</script>
+</head>
+
+<body>
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <!-- Oddkit logo: staircase mark + pixel wordmark -->
+      <div class="brand-name" aria-label="Oddkit">
+        <svg viewBox="0 0 116 20" xmlns="http://www.w3.org/2000/svg"
+             style="height:20px;width:auto;display:block;overflow:visible;image-rendering:pixelated"
+             aria-hidden="true">
+          <!-- Staircase mark: 3 bands, offset diagonally, same as the reveal animation -->
+          <rect x="0"  y="0"  width="13" height="5" fill="var(--ink)"/>
+          <rect x="4"  y="7"  width="13" height="5" fill="var(--ink)"/>
+          <rect x="8"  y="14" width="13" height="5" fill="var(--ink)"/>
+          <!-- Wordmark: Silkscreen pixel font, native 16px for crisp rendering -->
+          <text x="30" y="16"
+                font-family="'Silkscreen','Courier New',monospace"
+                font-size="16"
+                font-weight="400"
+                fill="var(--ink)"
+                style="image-rendering:pixelated;-webkit-font-smoothing:none;font-smooth:never">Oddkit</text>
+        </svg>
+      </div>
+      <div class="brand-sub">Component library — v0.1.0</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-group-label">Text</div>
+      <div class="nav-item active" onclick="navigate('cube-word-stack',this)">Cube Word Stack</div>
+      <div class="nav-group-label">Transitions</div>
+      <div class="nav-item" onclick="navigate('staircase-reveal',this)">Staircase Reveal</div>
+      <div class="nav-group-label">3D</div>
+      <div class="nav-item" onclick="navigate('constellation-sphere',this)">Constellation Sphere</div>
+    </nav>
+    <div class="sidebar-footer"><span class="version">ODDKIT / 2026 ⚡</span></div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ══ PAGE: Cube Word Stack ══ -->
+    <section id="page-cube-word-stack" class="page active">
+
+      <div class="comp-header">
+        <div class="comp-meta">
+          <span class="comp-category">Text</span>
+          <div class="tags"><span class="tag">Web Component</span><span class="tag">3D</span><span class="tag">Hover</span><span class="tag">Zero deps</span></div>
+        </div>
+        <h1 class="comp-title">Cube Word<br>Stack</h1>
+        <p class="comp-desc">White highlight blocks stacked vertically — each word a 3D cube that flips on hover. Floating ornaments drift outward when a nearby word flips. Vanilla JS + Shadow DOM, no dependencies.</p>
+      </div>
+
+      <!-- Preview -->
+      <div class="section">
+        <div class="section-eyebrow">Preview</div>
+        <div class="preview-card">
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('cws','preview',this)">Preview</button>
+            <button class="tab-btn" onclick="switchTab('cws','code',this)">Code</button>
+            <div class="tab-actions"><button class="copy-btn" id="cws-copy" onclick="copyCode('cws-code-out')">Copy</button></div>
+          </div>
+          <div class="pane vis" id="cws-pane-preview">
+            <div class="preview-wrap" id="cws-preview-wrap">
+              <cube-word-stack id="cws-el"
+                text="A|collective|of|Odd Minds|brings|new|angles|with|meaning"
+                bg="#EBEBE5" block="#FFFFFF" ink="#0A0A0A"
+                font='"Georgia",serif'
+                font-min="34px" font-vw="4.4vw" font-max="72px"
+                intro-stagger="110" push-max-x="70">
+                <img id="cws-icon-0" data-anchor="top-right"    data-offset="46" data-size="72" data-vertical="7%"
+                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1OCA1OCI+PGNpcmNsZSBjeD0iMjkiIGN5PSIyOSIgcj0iMjEiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48bGluZSB4MT0iMjkiIHkxPSI3IiB4Mj0iMjkiIHkyPSI0MyIgc3Ryb2tlPSIjMEEwQTBBIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxsaW5lIHgxPSI3IiB5MT0iMjkiIHgyPSI0MyIgeTI9IjI5IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41Ii8+PC9zdmc+" alt="">
+                <img id="cws-icon-1" data-anchor="top-left"     data-offset="32" data-size="76" data-vertical="20%"
+                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MiA2MiI+PHBhdGggZD0iTTMxIDYgTDU2IDUwIEg2IFoiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48L3N2Zz4=" alt="">
+                <img id="cws-icon-2" data-anchor="bottom-left"  data-offset="150" data-size="64" data-vertical="22%"
+                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjM4IiBoZWlnaHQ9IjM4IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiByeD0iMyIvPjxwYXRoIGQ9Ik0xNSAyNWgyME0yNSAxNXYyMCIgc3Ryb2tlPSIjMEEwQTBBIiBzdHJva2Utd2lkdGg9IjEuNSIvPjwvc3ZnPg==" alt="">
+                <img id="cws-icon-3" data-anchor="bottom-right" data-offset="80"  data-size="68" data-vertical="14%"
+                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NCA1NCI+PGNpcmNsZSBjeD0iMjciIGN5PSIyNyIgcj0iMTkiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48Y2lyY2xlIGN4PSIyNyIgY3k9IjI3IiByPSI2IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIi8+PC9zdmc+" alt="">
+              </cube-word-stack>
+            </div>
+          </div>
+          <div class="pane" id="cws-pane-code">
+            <pre class="code-pane" id="cws-code-out">&lt;cube-word-stack
+  text="A|collective|of|Odd Minds|brings|new|angles|with|meaning"
+  bg="#EBEBE5" block="#FFFFFF" ink="#0A0A0A"
+  font='"Georgia", serif'
+  font-min="34px" font-vw="4.4vw" font-max="72px"&gt;
+
+  &lt;img data-anchor="top-right"    data-offset="46"  data-size="72"  data-vertical="7%"   src="/icons/crosshair.svg" alt=""&gt;
+  &lt;img data-anchor="top-left"     data-offset="32"  data-size="76"  data-vertical="20%"  src="/icons/triangle.svg" alt=""&gt;
+  &lt;img data-anchor="bottom-left"  data-offset="150" data-size="64"  data-vertical="22%"  src="/icons/plus.svg" alt=""&gt;
+  &lt;img data-anchor="bottom-right" data-offset="80"  data-size="68"  data-vertical="14%"  src="/icons/target.svg" alt=""&gt;
+
+&lt;/cube-word-stack&gt;</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customize -->
+      <div class="section">
+        <div class="section-eyebrow">Customize</div>
+        <div class="customize-panel">
+
+          <!-- Colors -->
+          <div class="cp-group">
+            <div class="cp-group-label">Colors</div>
+            <div class="cp-controls">
+              <div class="cp-field">
+                <div class="cp-field-label">Background</div>
+                <div class="cp-color-wrap">
+                  <input type="color" value="#EBEBE5" id="cws-bg-pick" oninput="cwsColor('bg',this)">
+                  <span class="cp-color-hex" id="cws-bg-hex">#EBEBE5</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Block</div>
+                <div class="cp-color-wrap">
+                  <input type="color" value="#FFFFFF" id="cws-block-pick" oninput="cwsColor('block',this)">
+                  <span class="cp-color-hex" id="cws-block-hex">#FFFFFF</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Ink</div>
+                <div class="cp-color-wrap">
+                  <input type="color" value="#0A0A0A" id="cws-ink-pick" oninput="cwsColor('ink',this)">
+                  <span class="cp-color-hex" id="cws-ink-hex">#0A0A0A</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Typography -->
+          <div class="cp-group">
+            <div class="cp-group-label">Typography</div>
+            <div class="cp-controls">
+              <div class="cp-field">
+                <div class="cp-field-label">Font</div>
+                <select class="cp-select" id="cws-font-sel" onchange="cwsFont(this.value)">
+                  <option value='"Georgia",serif' selected>Georgia — serif</option>
+                  <option value='"Times New Roman",serif'>Times New Roman</option>
+                  <option value='"Palatino Linotype",Palatino,serif'>Palatino</option>
+                  <option value='"Courier New",monospace'>Courier New — mono</option>
+                  <option value='system-ui,-apple-system,sans-serif'>System UI — sans</option>
+                  <option value='"Helvetica Neue",Helvetica,sans-serif'>Helvetica Neue</option>
+                  <option value="__playfair">Playfair Display ↗</option>
+                  <option value="__space_mono">Space Mono ↗</option>
+                  <option value="__dm_serif">DM Serif Display ↗</option>
+                </select>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Max size</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="44" max="100" value="72" id="cws-fmax" oninput="cwsAttr('font-max',this.value+'px');document.getElementById('cws-fmax-val').textContent=this.value+'px'">
+                  <span class="cp-range-val" id="cws-fmax-val">72px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Words -->
+          <div class="cp-group">
+            <div class="cp-group-label">Words</div>
+            <div class="cp-field" style="width:100%">
+              <div class="cp-field-label">One word per line (each becomes a cube)</div>
+              <textarea class="cp-textarea" id="cws-text-area" oninput="cwsText(this.value)">A
+collective
+of
+Odd Minds
+brings
+new
+angles
+with
+meaning</textarea>
+            </div>
+          </div>
+
+          <!-- Animation -->
+          <div class="cp-group">
+            <div class="cp-group-label">Animation</div>
+            <div class="cp-controls">
+              <div class="cp-field">
+                <div class="cp-field-label">Intro stagger</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="0" max="300" value="110" id="cws-stagger" oninput="cwsAttr('intro-stagger',this.value);document.getElementById('cws-stagger-val').textContent=this.value+'ms'">
+                  <span class="cp-range-val" id="cws-stagger-val">110ms</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Icon push strength</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="0" max="150" value="70" id="cws-push" oninput="cwsAttr('push-max-x',this.value);document.getElementById('cws-push-val').textContent=this.value+'px'">
+                  <span class="cp-range-val" id="cws-push-val">70px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Icons -->
+          <div class="cp-group">
+            <div class="cp-group-label">Icons — click a slot to replace</div>
+            <div class="icon-slots">
+              <div class="icon-slot" data-anchor="top-right">
+                <label class="icon-thumb-wrap" for="icon-up-0">
+                  <img id="icon-preview-0" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1OCA1OCI+PGNpcmNsZSBjeD0iMjkiIGN5PSIyOSIgcj0iMjEiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48bGluZSB4MT0iMjkiIHkxPSI3IiB4Mj0iMjkiIHkyPSI0MyIgc3Ryb2tlPSIjMEEwQTBBIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxsaW5lIHgxPSI3IiB5MT0iMjkiIHgyPSI0MyIgeTI9IjI5IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41Ii8+PC9zdmc+" alt="">
+                  <div class="icon-upload-overlay">Upload</div>
+                </label>
+                <input type="file" id="icon-up-0" accept="image/*" onchange="uploadIcon(0,this)">
+                <div class="icon-slot-label">Top right</div>
+              </div>
+              <div class="icon-slot" data-anchor="top-left">
+                <label class="icon-thumb-wrap" for="icon-up-1">
+                  <img id="icon-preview-1" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MiA2MiI+PHBhdGggZD0iTTMxIDYgTDU2IDUwIEg2IFoiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48L3N2Zz4=" alt="">
+                  <div class="icon-upload-overlay">Upload</div>
+                </label>
+                <input type="file" id="icon-up-1" accept="image/*" onchange="uploadIcon(1,this)">
+                <div class="icon-slot-label">Top left</div>
+              </div>
+              <div class="icon-slot" data-anchor="bottom-left">
+                <label class="icon-thumb-wrap" for="icon-up-2">
+                  <img id="icon-preview-2" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjM4IiBoZWlnaHQ9IjM4IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiByeD0iMyIvPjxwYXRoIGQ9Ik0xNSAyNWgyME0yNSAxNXYyMCIgc3Ryb2tlPSIjMEEwQTBBIiBzdHJva2Utd2lkdGg9IjEuNSIvPjwvc3ZnPg==" alt="">
+                  <div class="icon-upload-overlay">Upload</div>
+                </label>
+                <input type="file" id="icon-up-2" accept="image/*" onchange="uploadIcon(2,this)">
+                <div class="icon-slot-label">Bottom left</div>
+              </div>
+              <div class="icon-slot" data-anchor="bottom-right">
+                <label class="icon-thumb-wrap" for="icon-up-3">
+                  <img id="icon-preview-3" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NCA1NCI+PGNpcmNsZSBjeD0iMjciIGN5PSIyNyIgcj0iMTkiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48Y2lyY2xlIGN4PSIyNyIgY3k9IjI3IiByPSI2IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIi8+PC9zdmc+" alt="">
+                  <div class="icon-upload-overlay">Upload</div>
+                </label>
+                <input type="file" id="icon-up-3" accept="image/*" onchange="uploadIcon(3,this)">
+                <div class="icon-slot-label">Bottom right</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Install -->
+      <div class="section">
+        <div class="section-eyebrow">Installation</div>
+        <div class="steps">
+          <div class="step"><span class="step-num">01</span><div><div class="step-label">Load a font in your host page</div><pre class="snippet">&lt;style&gt;
+  @font-face {
+    font-family: "Your Font";
+    src: url("/fonts/YourFont.otf") format("opentype");
+    font-weight: 500; font-display: swap;
+  }
+&lt;/style&gt;</pre></div></div>
+          <div class="step"><span class="step-num">02</span><div><div class="step-label">Include the component script</div><pre class="snippet">&lt;script src="cube-word-stack.js"&gt;&lt;/script&gt;
+// or  import "cube-word-stack.js"</pre></div></div>
+          <div class="step"><span class="step-num">03</span><div><div class="step-label">Drop the element in</div><pre class="snippet">&lt;cube-word-stack
+  text="Word|by|Word"
+  bg="#EBEBE5" block="#FFFFFF" ink="#0A0A0A"
+  font='"Your Font", serif'&gt;
+  &lt;img data-anchor="top-right" data-offset="40"
+       data-size="86" data-vertical="6%" src="/icon.svg" alt=""&gt;
+&lt;/cube-word-stack&gt;</pre></div></div>
+        </div>
+      </div>
+
+      <!-- API -->
+      <div class="section">
+        <div class="section-eyebrow">API Reference</div>
+        <div class="prop-groups">
+          <div><div class="prop-group-name">Content</div><table><thead><tr><th>Attribute</th><th>Default</th><th>Notes</th></tr></thead><tbody><tr><td><code>text</code></td><td><code>""</code></td><td class="td-notes">Words separated by <code>|</code>. Each becomes one cube.</td></tr></tbody></table></div>
+          <div><div class="prop-group-name">Colors</div><table><thead><tr><th>Attribute</th><th>Default</th><th>Notes</th></tr></thead><tbody>
+            <tr><td><code>bg</code></td><td><code>#EFEAE3</code></td><td class="td-notes">Component background.</td></tr>
+            <tr><td><code>block</code></td><td><code>#FFFFFF</code></td><td class="td-notes">Highlight block behind each word.</td></tr>
+            <tr><td><code>ink</code></td><td><code>#0A0A0A</code></td><td class="td-notes">Text color.</td></tr>
+          </tbody></table></div>
+          <div><div class="prop-group-name">Typography</div><table><thead><tr><th>Attribute</th><th>Default</th><th>Notes</th></tr></thead><tbody>
+            <tr><td><code>font</code></td><td><code>"Times New Roman", serif</code></td><td class="td-notes">Must be loaded by host page.</td></tr>
+            <tr><td><code>font-min</code></td><td><code>34px</code></td><td class="td-notes"><code>clamp()</code> lower bound.</td></tr>
+            <tr><td><code>font-vw</code></td><td><code>4.4vw</code></td><td class="td-notes">Preferred — stay ≤ 4.5vw for 9-word stacks.</td></tr>
+            <tr><td><code>font-max</code></td><td><code>76px</code></td><td class="td-notes"><code>clamp()</code> upper bound.</td></tr>
+          </tbody></table></div>
+          <div><div class="prop-group-name">Animation</div><table><thead><tr><th>Attribute</th><th>Default</th><th>Notes</th></tr></thead><tbody>
+            <tr><td><code>intro-stagger</code></td><td><code>110</code></td><td class="td-notes">ms between each cube's intro flip.</td></tr>
+            <tr><td><code>push-max-x</code></td><td><code>70</code></td><td class="td-notes">Max horizontal ornament nudge (px).</td></tr>
+            <tr><td><code>push-max-y</code></td><td><code>14</code></td><td class="td-notes">Max vertical nudge (px).</td></tr>
+            <tr><td><code>push-falloff</code></td><td><code>280</code></td><td class="td-notes">Distance beyond which ornaments are unaffected.</td></tr>
+            <tr><td><code>push-hold</code></td><td><code>3000</code></td><td class="td-notes">ms before ornament snaps back.</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+
+    </section><!-- /cube-word-stack -->
+
+
+    <!-- ══ PAGE: Staircase Reveal ══ -->
+    <section id="page-staircase-reveal" class="page">
+
+      <div class="comp-header">
+        <div class="comp-meta">
+          <span class="comp-category">Transitions</span>
+          <div class="tags"><span class="tag">Full-screen</span><span class="tag">CSS transition</span><span class="tag">Zero deps</span></div>
+        </div>
+        <h1 class="comp-title">Staircase<br>Reveal</h1>
+        <p class="comp-desc">A full-screen solid cover made of N equal bands. On trigger, all bands slide to the same side — each delayed by a fixed offset, so their leading edges form a diagonal staircase sweeping across the screen.</p>
+      </div>
+
+      <!-- Live demo -->
+      <div class="section">
+        <div class="section-eyebrow">Live Demo</div>
+        <div class="sr-demo-card">
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('sr','preview',this)">Preview</button>
+            <button class="tab-btn" onclick="switchTab('sr','code',this)">Code</button>
+            <div class="tab-actions"><button class="copy-btn" id="sr-copy" onclick="copyCode('sr-code-out')">Copy</button></div>
+          </div>
+          <div class="pane vis" id="sr-pane-preview">
+            <div class="sr-demo-wrap" id="sr-demo-wrap">
+              <div class="sr-demo-inner">
+                <div class="sr-demo-label">Layer below — visible after reveal</div>
+                <div class="sr-demo-headline">Revealed</div>
+                <button class="sr-replay-btn" onclick="srReplay()">↺ Replay</button>
+              </div>
+              <div id="sr-demo-curtain"></div>
+            </div>
+            <div class="sr-stats">
+              <div class="sr-stat"><div class="sr-stat-label">Bands</div><div class="sr-stat-value" id="sr-stat-bands">11</div></div>
+              <div class="sr-stat"><div class="sr-stat-label">Stagger</div><div class="sr-stat-value" id="sr-stat-stagger">68ms</div></div>
+              <div class="sr-stat"><div class="sr-stat-label">Band dur</div><div class="sr-stat-value" id="sr-stat-dur">760ms</div></div>
+              <div class="sr-stat"><div class="sr-stat-label">Total ≈</div><div class="sr-stat-value" id="sr-stat-total">1440ms</div></div>
+              <div class="sr-stat"><div class="sr-stat-label">Axis</div><div class="sr-stat-value" id="sr-stat-axis">Left / Right</div></div>
+            </div>
+          </div>
+          <div class="pane" id="sr-pane-code">
+            <pre class="code-pane" id="sr-code-out">&lt;script src="staircase-reveal.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const reveal = new StaircaseReveal({
+    bandCount:  11,
+    coverColor: '#EBEBE5',
+    staggerMs:  68,
+    bandDur:    760,
+    onRevealed() {
+      // cover fully off — trigger hero intro here
+      window.__heroIntro &amp;&amp; window.__heroIntro();
+    }
+  });
+
+  reveal.play();      // play on load (random direction)
+  reveal.replay();    // replay on page transition
+  reveal.play({ side: 'go-right', order: 'bottom' }); // forced direction
+&lt;/script&gt;</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customize -->
+      <div class="section">
+        <div class="section-eyebrow">Customize</div>
+        <div class="customize-panel">
+
+          <!-- Timing / shape -->
+          <div class="cp-group">
+            <div class="cp-group-label">Timing &amp; Shape</div>
+            <div class="cp-controls">
+              <div class="cp-field">
+                <div class="cp-field-label">Band count</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="3" max="24" value="11" id="sr-bands" oninput="srUpdate()">
+                  <span class="cp-range-val" id="sr-bands-val">11</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Stagger (diagonal angle)</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="10" max="200" value="68" id="sr-stagger" oninput="srUpdate()">
+                  <span class="cp-range-val" id="sr-stagger-val">68ms</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Band duration (speed)</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="200" max="1600" step="20" value="760" id="sr-dur" oninput="srUpdate()">
+                  <span class="cp-range-val" id="sr-dur-val">760ms</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Axis -->
+          <div class="cp-group">
+            <div class="cp-group-label">Axis</div>
+            <div class="cp-controls">
+              <div class="cp-field">
+                <div class="cp-field-label">Slide direction</div>
+                <div class="cp-toggle" id="sr-axis-toggle">
+                  <button class="cp-toggle-btn active" onclick="srSetAxis('y',this)">← Left / Right →</button>
+                  <button class="cp-toggle-btn" onclick="srSetAxis('x',this)">↑ Up / Down ↓</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Page Transition mode -->
+          <div class="cp-group">
+            <div class="cp-group-label">Page Transition — matchTarget</div>
+            <p style="font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-bottom:14px">
+              Pass <code>matchTarget</code> pointing at the destination section. On every <code>replay()</code>, the bands automatically read that element's <code>background-color</code> — no hardcoded colors needed.
+            </p>
+            <div class="cp-controls" style="align-items:flex-end;gap:12px">
+              <div class="cp-field">
+                <div class="cp-field-label">Next page bg</div>
+                <div class="cp-color-wrap">
+                  <input type="color" value="#FFFFFF" id="sr-dest-color" oninput="document.getElementById('sr-dest-hex').textContent=this.value.toUpperCase()">
+                  <span class="cp-color-hex" id="sr-dest-hex">#FFFFFF</span>
+                </div>
+              </div>
+              <button class="sr-replay-btn" style="background:var(--ink);color:var(--bg);border-color:var(--ink);padding:8px 18px;font-size:10px"
+                onclick="srTransitionDemo()">Transition ↗</button>
+            </div>
+            <pre class="snippet" style="margin-top:14px">// matchTarget: auto-reads destination background on every replay
+const reveal = new StaircaseReveal({
+  matchTarget: '#next-section',  // CSS selector or DOM element
+});
+reveal.play();   // reads #next-section's backgroundColor → bands match
+reveal.replay(); // re-reads every time — always in sync, no hardcoded colors
+
+// Override for a one-off colour (ignores matchTarget that call only):
+reveal.replay(null, '#0A0A0A');</pre>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- How it works -->
+      <div class="section">
+        <div class="section-eyebrow">How it works</div>
+        <p class="prose">A fixed cover fills the viewport with <code>bandCount</code> equal-height bands. On <code>play()</code>, every band gets the same slide-out class (<code>go-left</code> or <code>go-right</code>), but each has an increasing <code>transition-delay</code> — offset by <code>staggerMs</code> per band. This makes the bands' leading edges form a continuous diagonal, sweeping the cover off the screen in one uninterrupted motion. Direction randomises every call.</p>
+      </div>
+
+      <!-- Install -->
+      <div class="section">
+        <div class="section-eyebrow">Installation</div>
+        <div class="steps">
+          <div class="step"><span class="step-num">01</span><div><div class="step-label">Include the script</div><pre class="snippet">&lt;script src="staircase-reveal.js"&gt;&lt;/script&gt;
+// or  import "staircase-reveal.js"</pre></div></div>
+          <div class="step"><span class="step-num">02</span><div><div class="step-label">Instantiate and play</div><pre class="snippet">const reveal = new StaircaseReveal({
+  bandCount:  11,
+  coverColor: '#EBEBE5',
+  onRevealed() { /* start page animation */ }
+});
+reveal.play();</pre></div></div>
+          <div class="step"><span class="step-num">03</span><div><div class="step-label">Replay on page transitions or scroll</div><pre class="snippet">// On navigation:
+reveal.replay();
+
+// Scroll-driven (axis: 'x'):
+const reveal = new StaircaseReveal({ axis: 'x', coverColor: '#0A0A0A' });
+window.addEventListener('wheel', (e) => {
+  reveal.replay({
+    side:  e.deltaY > 0 ? 'go-down' : 'go-up',
+    order: e.deltaY > 0 ? 'top'     : 'bottom'
+  });
+}, { once: true });</pre></div></div>
+        </div>
+      </div>
+
+      <!-- API -->
+      <div class="section">
+        <div class="section-eyebrow">API Reference</div>
+        <div class="prop-groups">
+          <div><div class="prop-group-name">Constructor options</div><table><thead><tr><th>Option</th><th>Default</th><th>Notes</th></tr></thead><tbody>
+            <tr><td><code>bandCount</code></td><td><code>11</code></td><td class="td-notes">Number of bands. More = finer diagonal.</td></tr>
+            <tr><td><code>coverColor</code></td><td><code>#F4F2EC</code></td><td class="td-notes">Fallback cover color when <code>matchTarget</code> is unset or transparent.</td></tr>
+            <tr><td><code>matchTarget</code></td><td class="dash">—</td><td class="td-notes">CSS selector or DOM element. On every <code>play()</code>, bands auto-read its <code>background-color</code>. Perfect for page transitions — bands always match the destination.</td></tr>
+            <tr><td><code>staggerMs</code></td><td><code>68</code></td><td class="td-notes">ms added per band — controls the staircase angle.</td></tr>
+            <tr><td><code>bandDur</code></td><td><code>760</code></td><td class="td-notes">Individual band slide duration (ms).</td></tr>
+            <tr><td><code>ease</code></td><td><code>cubic-bezier(0.76,0,0.18,1)</code></td><td class="td-notes">CSS easing curve.</td></tr>
+            <tr><td><code>axis</code></td><td><code>'y'</code></td><td class="td-notes"><code>'y'</code> = left/right slide. <code>'x'</code> = up/down slide.</td></tr>
+            <tr><td><code>zIndex</code></td><td><code>9999</code></td><td class="td-notes">Cover layer z-index.</td></tr>
+            <tr><td><code>mount</code></td><td class="dash">—</td><td class="td-notes">Reuse existing DOM element as cover.</td></tr>
+            <tr><td><code>onRevealed</code></td><td class="dash">—</td><td class="td-notes">Callback fired when all bands have exited.</td></tr>
+          </tbody></table></div>
+          <div><div class="prop-group-name">Methods</div><table><thead><tr><th>Method</th><th>Notes</th></tr></thead><tbody>
+            <tr><td><code>play(dir?)</code></td><td class="td-notes">Play. Random direction unless <code>{ side, order }</code> passed.</td></tr>
+            <tr><td><code>replay(dir?)</code></td><td class="td-notes">Re-cover and play again. Safe to call repeatedly.</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+
+    </section><!-- /staircase-reveal -->
+
+
+    <!-- ══ PAGE: Constellation Sphere ══ -->
+    <section id="page-constellation-sphere" class="page">
+
+      <div class="comp-header">
+        <div class="comp-meta">
+          <span class="comp-category">3D</span>
+          <div class="tags">
+            <span class="tag">Web Component</span><span class="tag">Three.js</span>
+            <span class="tag">CSS3D</span><span class="tag">Drag</span>
+          </div>
+        </div>
+        <h1 class="comp-title">Constellation<br>Sphere</h1>
+        <p class="comp-desc">几十个手绘图标散布在 3D 球面上缓慢自转，中心叠加姓名列表。拖拽改变方向，hover 姓名时对应图标高亮脉冲。CSS3DRenderer 驱动，图标保持 SVG 清晰度，移动端 60fps。</p>
+      </div>
+
+      <!-- Preview -->
+      <div class="section">
+        <div class="section-eyebrow">Preview</div>
+        <div class="preview-card">
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('cs','preview',this)">Preview</button>
+            <button class="tab-btn" onclick="switchTab('cs','code',this)">Code</button>
+            <div class="tab-actions"><button class="copy-btn" id="cs-copy" onclick="copyCode('cs-code-out')">Copy</button></div>
+          </div>
+          <div class="pane vis" id="cs-pane-preview">
+            <!-- sphere is created dynamically on navigate to avoid display:none init issue -->
+            <div id="cs-preview-wrap" style="height:660px;position:relative;overflow:hidden;background:#0A0A0A"></div>
+          </div>
+          <div class="pane" id="cs-pane-code">
+            <pre class="code-pane" id="cs-code-out">&lt;!-- 1. Importmap (before your scripts) --&gt;
+&lt;script type="importmap"&gt;
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+&lt;/script&gt;
+
+&lt;!-- 2. Component module --&gt;
+&lt;script type="module" src="constellation-sphere.js"&gt;&lt;/script&gt;
+
+&lt;!-- 3. Drop in --&gt;
+&lt;constellation-sphere
+  names="Aria,Bo,Cyrus,Dahlia,Ezra,Fenix,Giles,Hana,Ivo"
+  count="56"
+  radius="320"
+  rotate-speed="0.30"
+  ink="#E8E4DD"
+  bg="#0A0A0A"
+  label="The Collective · 17"
+  style="width:100vw;height:100vh;display:block"&gt;
+&lt;/constellation-sphere&gt;</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customize -->
+      <div class="section">
+        <div class="section-eyebrow">Customize</div>
+        <div class="customize-panel">
+
+          <!-- Colors -->
+          <div class="cp-group">
+            <div class="cp-group-label">Colors</div>
+            <div class="cp-controls">
+              <div class="cp-field">
+                <div class="cp-field-label">Icon / Text (ink)</div>
+                <div class="cp-color-wrap">
+                  <input type="color" value="#E8E4DD" id="cs-ink" oninput="csUpdate()">
+                  <span class="cp-color-hex" id="cs-ink-hex">#E8E4DD</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Background</div>
+                <div class="cp-color-wrap">
+                  <input type="color" value="#0A0A0A" id="cs-bg" oninput="csUpdate()">
+                  <span class="cp-color-hex" id="cs-bg-hex">#0A0A0A</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sphere -->
+          <div class="cp-group">
+            <div class="cp-group-label">Sphere</div>
+            <div class="cp-controls">
+              <div class="cp-field">
+                <div class="cp-field-label">Icon count</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="20" max="120" value="56" id="cs-count" oninput="csUpdate()">
+                  <span class="cp-range-val" id="cs-count-val">56</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Radius</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="180" max="480" step="10" value="320" id="cs-radius" oninput="csUpdate()">
+                  <span class="cp-range-val" id="cs-radius-val">320</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Rotate speed</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="0" max="100" value="30" id="cs-speed" oninput="csUpdate()">
+                  <span class="cp-range-val" id="cs-speed-val">0.30</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Names -->
+          <div class="cp-group">
+            <div class="cp-group-label">Names — one per line</div>
+            <div class="cp-field" style="width:100%">
+              <textarea class="cp-textarea" id="cs-names" oninput="csUpdate()" rows="8">Aria
+Bo
+Cyrus
+Dahlia
+Ezra
+Fenix
+Giles
+Hana
+Ivo
+Junie
+Kit
+Luca
+Mira
+Noor
+Otis
+Pell
+Quinn</textarea>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Install -->
+      <div class="section">
+        <div class="section-eyebrow">Installation</div>
+        <div class="steps">
+          <div class="step"><span class="step-num">01</span><div><div class="step-label">Add the Three.js importmap</div><pre class="snippet">&lt;script type="importmap"&gt;
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+&lt;/script&gt;</pre></div></div>
+          <div class="step"><span class="step-num">02</span><div><div class="step-label">Load the component as a module</div><pre class="snippet">&lt;script type="module" src="constellation-sphere.js"&gt;&lt;/script&gt;</pre></div></div>
+          <div class="step"><span class="step-num">03</span><div><div class="step-label">Drop the element in</div><pre class="snippet">&lt;constellation-sphere
+  names="Aria,Bo,Cyrus,Dahlia"
+  count="56"
+  rotate-speed="0.30"
+  ink="#E8E4DD"
+  bg="#0A0A0A"
+  label="The Collective · 17"
+  style="width:100vw;height:100vh;display:block"&gt;
+&lt;/constellation-sphere&gt;</pre></div></div>
+        </div>
+      </div>
+
+      <!-- API -->
+      <div class="section">
+        <div class="section-eyebrow">API Reference</div>
+        <div class="prop-groups">
+          <div><div class="prop-group-name">Attributes</div><table><thead><tr><th>Attribute</th><th>Default</th><th>Notes</th></tr></thead><tbody>
+            <tr><td><code>names</code></td><td><code>17 placeholders</code></td><td class="td-notes">Comma-separated names. Shown in centre; hover triggers icon pulse.</td></tr>
+            <tr><td><code>count</code></td><td><code>56</code></td><td class="td-notes">Total icons on the sphere surface.</td></tr>
+            <tr><td><code>radius</code></td><td><code>320</code></td><td class="td-notes">Sphere radius in scene units.</td></tr>
+            <tr><td><code>rotate-speed</code></td><td><code>0.30</code></td><td class="td-notes">Auto-rotation in rad/s. 0 = stopped.</td></tr>
+            <tr><td><code>ink</code></td><td><code>#E8E4DD</code></td><td class="td-notes">Stroke / fill for all 25 built-in glyphs + name text.</td></tr>
+            <tr><td><code>bg</code></td><td><code>#0A0A0A</code></td><td class="td-notes">Component background colour.</td></tr>
+            <tr><td><code>label</code></td><td><code>"The Collective"</code></td><td class="td-notes">Small mono label above the name list.</td></tr>
+            <tr><td><code>ornaments</code></td><td class="dash">—</td><td class="td-notes">Comma-separated URLs to custom SVG/PNG. Mixed in 1-in-6 positions.</td></tr>
+          </tbody></table></div>
+          <div><div class="prop-group-name">JavaScript API</div><table><thead><tr><th>Member</th><th>Notes</th></tr></thead><tbody>
+            <tr><td><code>.pulse(index)</code></td><td class="td-notes">Highlight the icon mapped to name at <code>index</code>. Pass <code>null</code> to clear.</td></tr>
+            <tr><td><code>.names</code></td><td class="td-notes">Read-only array of current names.</td></tr>
+          </tbody></table></div>
+          <div><div class="prop-group-name">Interaction</div><table><thead><tr><th>Action</th><th>Notes</th></tr></thead><tbody>
+            <tr><td>Hover</td><td class="td-notes">Auto-rotation pauses while cursor is anywhere inside the component. Resumes from the same angle on leave.</td></tr>
+            <tr><td>Drag / touch</td><td class="td-notes">Rotate yaw + pitch. Releases back to auto-rotate from new angle.</td></tr>
+            <tr><td>Hover name</td><td class="td-notes">Other names dim to 28%. Mapped sphere icon scales 1.7× + glows.</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+
+      <!-- Browser support -->
+      <div class="section">
+        <div class="section-eyebrow">Browser Support</div>
+        <p class="prose">Chrome 89+, Edge 89+, Safari 16.4+, Firefox 108+. Requires ES module importmap support. No WebGL — uses CSS3DRenderer, GPU-friendly and mobile-safe at 60fps for up to ~120 icons.</p>
+      </div>
+
+    </section><!-- /constellation-sphere -->
+
+
+    <!-- Marquee -->
+    <div class="marquee-wrap">
+      <span class="marquee-track">ODDKIT — COMPONENT LIBRARY<span class="mq-sep">⚡</span>CUBE WORD STACK<span class="mq-sep">⚡</span>STAIRCASE REVEAL<span class="mq-sep">⚡</span>CONSTELLATION SPHERE<span class="mq-sep">⚡</span>ZERO DEPENDENCIES<span class="mq-sep">⚡</span>WEB COMPONENTS<span class="mq-sep">⚡</span>THREE.JS<span class="mq-sep">⚡</span>ODDKIT — COMPONENT LIBRARY<span class="mq-sep">⚡</span>CUBE WORD STACK<span class="mq-sep">⚡</span>STAIRCASE REVEAL<span class="mq-sep">⚡</span>CONSTELLATION SPHERE<span class="mq-sep">⚡</span>ZERO DEPENDENCIES<span class="mq-sep">⚡</span>WEB COMPONENTS<span class="mq-sep">⚡</span>THREE.JS<span class="mq-sep">⚡</span></span>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ── Navigation ── */
+function navigate(slug, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + slug).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo(0, 0);
+  if (slug === 'staircase-reveal') setTimeout(() => demoReveal.replay(), 80);
+  // Sphere: wait for the custom element to register (Three.js loads async),
+  // then init — the parent is already visible at this point.
+  if (slug === 'constellation-sphere') {
+    customElements.whenDefined('constellation-sphere').then(function () {
+      setTimeout(initCS, 60);
+    });
+  }
+}
+
+/* ── Tab switching ── */
+function switchTab(prefix, tab, btn) {
+  const isP = tab === 'preview';
+  document.getElementById(prefix+'-pane-preview').classList.toggle('vis', isP);
+  document.getElementById(prefix+'-pane-code').classList.toggle('vis', !isP);
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const cb = document.getElementById(prefix+'-copy');
+  if (cb) cb.style.display = isP ? 'none' : 'block';
+}
+
+/* ── Copy ── */
+function copyCode(id) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+    const btn = document.querySelector(`.copy-btn[onclick*="${id}"]`);
+    if (!btn) return;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied'; setTimeout(() => btn.textContent = orig, 1400);
+  });
+}
+
+/* ═══ Cube Word Stack customization ═══ */
+const cwsEl = document.getElementById('cws-el');
+const cwsWrap = document.getElementById('cws-preview-wrap');
+
+function cwsAttr(attr, val) { cwsEl.setAttribute(attr, val); }
+
+function cwsColor(attr, input) {
+  const hex = input.value.toUpperCase();
+  cwsEl.setAttribute(attr, hex);
+  document.getElementById('cws-'+attr+'-hex').textContent = hex;
+  if (attr === 'bg') { cwsWrap.style.background = hex; }
+}
+
+function cwsFont(val) {
+  const gFonts = {
+    '__playfair': ['Playfair Display', '"Playfair Display",serif'],
+    '__space_mono': ['Space Mono', '"Space Mono",monospace'],
+    '__dm_serif': ['DM Serif Display', '"DM Serif Display",serif'],
+  };
+  if (gFonts[val]) {
+    const [name, stack] = gFonts[val];
+    const id = 'gf-' + name.replace(/\s+/g,'-').toLowerCase();
+    if (!document.getElementById(id)) {
+      const lnk = document.createElement('link');
+      lnk.id = id; lnk.rel = 'stylesheet';
+      lnk.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(name)}&display=swap`;
+      document.head.appendChild(lnk);
+    }
+    cwsEl.setAttribute('font', stack);
+  } else {
+    cwsEl.setAttribute('font', val);
+  }
+}
+
+function cwsText(raw) {
+  const words = raw.split('\n').map(w => w.trim()).filter(Boolean).join('|');
+  cwsEl.setAttribute('text', words);
+}
+
+/* Icon upload */
+function uploadIcon(idx, input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const src = e.target.result;
+    document.getElementById('cws-icon-'+idx).src = src;
+    document.getElementById('icon-preview-'+idx).src = src;
+    // Trigger rebuild via attribute change
+    const ink = cwsEl.getAttribute('ink') || '#0A0A0A';
+    cwsEl.setAttribute('ink', ink === '#0A0A0A' ? '#0a0a0a' : '#0A0A0A');
+    requestAnimationFrame(() => cwsEl.setAttribute('ink', ink));
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ═══ Staircase Reveal customization ═══ */
+let srAxis = 'y';
+let demoReveal;
+let srLastColor = '#EBEBE5'; // tracks the last transition color for Replay
+
+function initSR(matchTarget) {
+  const curtainEl = document.getElementById('sr-demo-curtain');
+  demoReveal = new StaircaseReveal({
+    mount: curtainEl,
+    bandCount:   parseInt(document.getElementById('sr-bands').value),
+    coverColor:  srLastColor,
+    matchTarget: matchTarget || null,   // ← live color sync when set
+    staggerMs:   parseInt(document.getElementById('sr-stagger').value),
+    bandDur:     parseInt(document.getElementById('sr-dur').value),
+    axis: srAxis,
+  });
+}
+
+function srReplay() {
+  if (!demoReveal) return;
+  // Reset demo wrap to dark, then replay with last-used transition color.
+  // This shows: curtain in [last color] sweeps in → dark page revealed.
+  const wrap = document.getElementById('sr-demo-wrap');
+  wrap.style.background = '';
+  wrap.querySelectorAll('.sr-demo-label,.sr-demo-headline').forEach(el => el.style.color = '');
+  const btn = wrap.querySelector('.sr-replay-btn');
+  btn.style.color = ''; btn.style.background = ''; btn.style.borderColor = '';
+  initSR();
+  demoReveal.replay();
+}
+
+function _isDark(hex) {
+  // hex can be #RGB or #RRGGBB; parse to luminance
+  let h = hex.replace('#','');
+  if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+  return (0.299*r + 0.587*g + 0.114*b) < 140;
+}
+
+function srTransitionDemo() {
+  const color = document.getElementById('sr-dest-color').value;
+  document.getElementById('sr-dest-hex').textContent = color.toUpperCase();
+
+  const wrap = document.getElementById('sr-demo-wrap');
+  const dark = _isDark(color);
+
+  // Step 1: Paint wrap with destination color FIRST — matchTarget will read it.
+  // The curtain is rebuilt in step 2 and will cover this instantly on play(),
+  // so the user never sees the raw swap.
+  wrap.style.background = color;
+  wrap.querySelectorAll('.sr-demo-label,.sr-demo-headline').forEach(el => {
+    el.style.color = dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
+  });
+  const btn = wrap.querySelector('.sr-replay-btn');
+  btn.style.color       = dark ? '#0A0A0A' : '#F0EDE5';
+  btn.style.background  = dark ? '#F0EDE5' : '#0A0A0A';
+  btn.style.borderColor = dark ? '#F0EDE5' : '#0A0A0A';
+
+  // Step 2: Build curtain with matchTarget → wrap. Inside play(), _resolveColor()
+  // calls getComputedStyle(wrap).backgroundColor — which now returns `color`.
+  // No need to pass color explicitly; matchTarget reads it automatically.
+  srLastColor = color;
+  initSR(wrap);          // ← matchTarget: wrap
+  demoReveal.replay();   // ← no explicit color arg — matchTarget does the work
+}
+
+let srTimer;
+function srUpdate() {
+  // Update range displays + stats only (no color picker to read)
+  const bands = document.getElementById('sr-bands').value;
+  const stagger = document.getElementById('sr-stagger').value;
+  const dur = document.getElementById('sr-dur').value;
+  document.getElementById('sr-bands-val').textContent = bands;
+  document.getElementById('sr-stagger-val').textContent = stagger + 'ms';
+  document.getElementById('sr-dur-val').textContent = dur + 'ms';
+  document.getElementById('sr-stat-bands').textContent = bands;
+  document.getElementById('sr-stat-stagger').textContent = stagger + 'ms';
+  document.getElementById('sr-stat-dur').textContent = dur + 'ms';
+  const total = (parseInt(bands) - 1) * parseInt(stagger) + parseInt(dur);
+  document.getElementById('sr-stat-total').textContent = total + 'ms';
+  // Debounced replay — shows the timing change without touching the bg color
+  clearTimeout(srTimer);
+  srTimer = setTimeout(() => { initSR(); demoReveal.replay(); }, 350);
+}
+
+function srSetAxis(axis, btn) {
+  srAxis = axis;
+  document.querySelectorAll('#sr-axis-toggle .cp-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sr-stat-axis').textContent = axis === 'y' ? 'Left / Right' : 'Up / Down';
+  initSR(); demoReveal.replay();
+}
+
+/* Init SR on load */
+initSR();
+
+/* ═══ Constellation Sphere customization ═══ */
+let csTimer;
+
+function csUpdate() {
+  // Update display labels
+  const ink    = document.getElementById('cs-ink').value.toUpperCase();
+  const bg     = document.getElementById('cs-bg').value.toUpperCase();
+  const count  = document.getElementById('cs-count').value;
+  const radius = document.getElementById('cs-radius').value;
+  const speed  = (parseInt(document.getElementById('cs-speed').value) / 100).toFixed(2);
+
+  document.getElementById('cs-ink-hex').textContent   = ink;
+  document.getElementById('cs-bg-hex').textContent    = bg;
+  document.getElementById('cs-count-val').textContent = count;
+  document.getElementById('cs-radius-val').textContent = radius;
+  document.getElementById('cs-speed-val').textContent = speed;
+
+  // Debounce the expensive rebuild (count/radius need full re-init)
+  clearTimeout(csTimer);
+  csTimer = setTimeout(initCS, 400);
+}
+
+function initCS() {
+  const wrap = document.getElementById('cs-preview-wrap');
+  if (!wrap) return;
+
+  const ink    = document.getElementById('cs-ink').value;
+  const bg     = document.getElementById('cs-bg').value;
+  const count  = document.getElementById('cs-count').value;
+  const radius = document.getElementById('cs-radius').value;
+  const speed  = (parseInt(document.getElementById('cs-speed').value) / 100).toFixed(2);
+  const names  = document.getElementById('cs-names').value
+    .split('\n').map(s => s.trim()).filter(Boolean).join(',');
+
+  // constellation-sphere doesn't support dynamic attribute changes for count/radius,
+  // so we remove + re-insert to trigger a full rebuild.
+  wrap.style.background = bg;
+  const old = wrap.querySelector('constellation-sphere');
+  if (old) old.remove();
+
+  const cs = document.createElement('constellation-sphere');
+  cs.id = 'cs-el';
+  cs.style.cssText = 'width:100%;height:100%;display:block';
+  cs.setAttribute('names',        names);
+  cs.setAttribute('count',        count);
+  cs.setAttribute('radius',       radius);
+  cs.setAttribute('rotate-speed', speed);
+  cs.setAttribute('ink',          ink);
+  cs.setAttribute('bg',           bg);
+  cs.setAttribute('label',        'The Collective · ' + (names.split(',').length));
+  wrap.appendChild(cs);
+}
+</script>
+</body>
+</html>
