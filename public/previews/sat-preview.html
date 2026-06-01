@@ -9,9 +9,9 @@ html,body{height:100%}
 body{background:#EBEBE5;color:#0A0A0A;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;overflow-y:auto;}
 #icon-stage{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;z-index:10;pointer-events:none;}
 #icon-slot{position:absolute;inset:0;}
-.rows{padding:48vh 56px;max-width:100%;}
-.row{display:flex;justify-content:space-between;align-items:baseline;padding:15px 0;border-bottom:1px solid rgba(10,10,10,.1);}
-.row:first-child{border-top:1px solid rgba(10,10,10,.1);}
+.rows{padding:46vh 0;display:flex;flex-direction:column;align-items:center;}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;border-bottom:1px solid rgba(10,10,10,.14);width:560px;max-width:90%;}
+.row:first-child{border-top:1px solid rgba(10,10,10,.14);}
 .lbl{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:rgba(10,10,10,.45);will-change:transform;}
 .val{font-size:14px;font-weight:400;color:#0A0A0A;text-align:right;will-change:transform;}
 </style>
@@ -47,14 +47,19 @@ var ICONS=[
 ];
 var _sat=null;
 function init(opts){
-  if(_sat){_sat.destroy();_sat=null;}
-  _sat=new ScrollAirflowText(Object.assign({
+  if(_sat){
+    // Update opts in-place — keeps scroll listener alive, no flicker
+    Object.assign(_sat.opt,opts||{});
+    _sat.refresh();
+    return;
+  }
+  _sat=new ScrollAirflowText({
     iconEl:document.getElementById('icon-slot'),
     icons:ICONS,
     cells:'[data-push]',
     sideOf:function(el){return el.classList.contains('lbl')?-1:1;},
-    maxPush:380,falloffY:360,iconRadius:110,ambient:80,swapThresholdPx:300
-  },opts||{}));
+    maxPush:280,falloffY:320,iconRadius:90,ambient:60,swapThresholdPx:300
+  });
 }
 init();
 window.addEventListener('message',function(e){

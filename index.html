@@ -52,12 +52,10 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--ink);color:var(--
 .nav{flex:1;padding:8px 0}
 .nav-group-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);padding:20px 20px 6px;}
 .nav-item{position:relative;display:block;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);padding:9px 20px 9px 32px;cursor:pointer;transition:background .1s;}
-/* Vertical bar — default: short 12px, low-opacity */
-.nav-item::before{content:'';position:absolute;left:20px;top:50%;transform:translateY(-50%);width:1.5px;height:12px;background:rgba(10,10,10,.15);border-radius:1px;transition:height .15s ease,background .15s ease,width .15s ease;}
-.nav-item:hover::before{background:rgba(10,10,10,.32);}
-/* Active: taller 20px bar, full black, subtle bg tint */
+.nav-item:hover{background:rgba(10,10,10,.05);}
+/* Vertical bar — ONLY on active item */
 .nav-item.active{background:rgba(10,10,10,.05);color:var(--ink);font-weight:700;}
-.nav-item.active::before{height:20px;width:2px;background:#0A0A0A;}
+.nav-item.active::before{content:'';position:absolute;left:20px;top:50%;transform:translateY(-50%);width:2px;height:20px;background:#0A0A0A;border-radius:1px;}
 .sidebar-footer{padding:14px 20px;border-top:var(--border-1);margin-top:auto}
 .version{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--ink-2)}
 
@@ -67,16 +65,18 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--ink);color:var(--
 .page.active{display:flex;flex-direction:column}
 
 /* ── Component Header ── */
-.comp-header{padding:44px 52px 40px;border-bottom:var(--border)}
-.comp-meta{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.comp-header{padding:28px 52px;border-bottom:var(--border);display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;column-gap:52px;align-items:start;}
+.comp-meta{grid-column:1;grid-row:1;display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.comp-title{grid-column:1;grid-row:2;}
+.comp-desc{grid-column:2;grid-row:1/3;align-self:center;}
 .comp-category{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
 .tags{display:flex;gap:6px}
 .tag{font-family:var(--mono);font-size:9.5px;font-weight:500;border:1px solid var(--ink);padding:2px 8px;letter-spacing:.05em;text-transform:uppercase}
-.comp-title{font-family:var(--sans);font-size:56px;font-weight:800;letter-spacing:-.035em;line-height:.95;text-transform:uppercase;margin-bottom:20px}
-.comp-desc{font-size:14px;color:var(--ink-2);line-height:1.75;max-width:500px}
+.comp-title{font-family:'Silkscreen','Courier New',monospace;font-size:38px;font-weight:700;letter-spacing:.01em;line-height:1.1;text-transform:uppercase;margin-bottom:0}
+.comp-desc{font-size:13.5px;color:var(--ink-2);line-height:1.72;max-width:440px}
 
 /* ── Sections ── */
-.section{padding:40px 52px;border-bottom:var(--border-1)}
+.section{padding:28px 52px;border-bottom:var(--border-1)}
 .section:last-child{border-bottom:none}
 .section-eyebrow{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin-bottom:24px;display:flex;align-items:center;gap:10px}
 .section-eyebrow::after{content:'';flex:1;height:1px;background:rgba(10,10,10,.15)}
@@ -1143,7 +1143,17 @@ function navigate(slug, el) {
   document.getElementById('page-' + slug).classList.add('active');
   el.classList.add('active');
   window.scrollTo(0, 0);
-  if (slug === 'staircase-reveal') setTimeout(() => demoReveal.replay(), 80);
+  if (slug === 'staircase-reveal') setTimeout(() => {
+    // Always reinit with matchTarget so bands match the wrap's actual background.
+    // Also pre-color the curtain container to cover the 2-frame transparent-band period.
+    const wrap = document.getElementById('sr-demo-wrap');
+    const curtainEl = document.getElementById('sr-demo-curtain');
+    const destColor = getComputedStyle(wrap).backgroundColor;
+    curtainEl.style.backgroundColor = destColor;
+    srLastColor = destColor;
+    initSR(wrap, function() { curtainEl.style.backgroundColor = ''; });
+    demoReveal.replay();
+  }, 80);
   // Sphere: wait for the custom element to register (Three.js loads async),
   // then init — the parent is already visible at this point.
   if (slug === 'constellation-sphere') {
@@ -1232,72 +1242,85 @@ function uploadIcon(idx, input) {
 /* ═══ Staircase Reveal customization ═══ */
 let srAxis = 'y';
 let demoReveal;
-let srLastColor = '#EBEBE5'; // tracks the last transition color for Replay
 
-function initSR(matchTarget) {
+// ── Helpers ─────────────────────────────────────────────────────────────────
+// Pre-color the curtain CONTAINER before replay so the 2-frame transparent-band
+// period never shows a raw background flash.
+function _srPrep(wrap) {
   const curtainEl = document.getElementById('sr-demo-curtain');
-  demoReveal = new StaircaseReveal({
-    mount: curtainEl,
-    bandCount:   parseInt(document.getElementById('sr-bands').value),
-    coverColor:  srLastColor,
-    matchTarget: matchTarget || null,   // ← live color sync when set
-    staggerMs:   parseInt(document.getElementById('sr-stagger').value),
-    bandDur:     parseInt(document.getElementById('sr-dur').value),
-    axis: srAxis,
-  });
+  const destColor = getComputedStyle(wrap).backgroundColor;
+  curtainEl.style.backgroundColor = destColor;
+  return destColor;
 }
-
-function srReplay() {
-  if (!demoReveal) return;
-  // Reset demo wrap to dark, then replay with last-used transition color.
-  // This shows: curtain in [last color] sweeps in → dark page revealed.
-  const wrap = document.getElementById('sr-demo-wrap');
-  wrap.style.background = '';
-  wrap.querySelectorAll('.sr-demo-label,.sr-demo-headline').forEach(el => el.style.color = '');
-  const btn = wrap.querySelector('.sr-replay-btn');
-  btn.style.color = ''; btn.style.background = ''; btn.style.borderColor = '';
-  initSR();
-  demoReveal.replay();
+function _srCleanup() {
+  const curtainEl = document.getElementById('sr-demo-curtain');
+  curtainEl.style.backgroundColor = '';
 }
-
 function _isDark(hex) {
-  // hex can be #RGB or #RRGGBB; parse to luminance
   let h = hex.replace('#','');
   if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
   const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
   return (0.299*r + 0.587*g + 0.114*b) < 140;
 }
 
+// initSR — always pass matchTarget (DOM element whose background = destination)
+function initSR(matchTarget) {
+  const curtainEl = document.getElementById('sr-demo-curtain');
+  // coverColor is the fallback if matchTarget is null or transparent
+  const fallback = matchTarget
+    ? getComputedStyle(matchTarget).backgroundColor
+    : '#EBEBE5';
+  demoReveal = new StaircaseReveal({
+    mount:       curtainEl,
+    bandCount:   parseInt(document.getElementById('sr-bands').value),
+    coverColor:  fallback,
+    matchTarget: matchTarget || null,
+    staggerMs:   parseInt(document.getElementById('sr-stagger').value),
+    bandDur:     parseInt(document.getElementById('sr-dur').value),
+    axis:        srAxis,
+    onRevealed:  _srCleanup,
+  });
+}
+
+// ↺ Replay — bands must match the wrap's CURRENT background (correct destination)
+function srReplay() {
+  const wrap = document.getElementById('sr-demo-wrap');
+  wrap.style.background = '';  // reset inline style → CSS bg (dark var(--ink))
+  wrap.querySelectorAll('.sr-demo-label,.sr-demo-headline').forEach(el => el.style.color = '');
+  const btn = wrap.querySelector('.sr-replay-btn');
+  btn.style.color = ''; btn.style.background = ''; btn.style.borderColor = '';
+  _srPrep(wrap);          // pre-color curtain = dark (CSS computed)
+  initSR(wrap);           // matchTarget: wrap → bands read the dark bg
+  demoReveal.replay();
+}
+
+// Transition → — destination color from color picker
 function srTransitionDemo() {
   const color = document.getElementById('sr-dest-color').value;
   document.getElementById('sr-dest-hex').textContent = color.toUpperCase();
-
   const wrap = document.getElementById('sr-demo-wrap');
   const dark = _isDark(color);
 
-  // Step 1: Paint wrap with destination color FIRST — matchTarget will read it.
-  // The curtain is rebuilt in step 2 and will cover this instantly on play(),
-  // so the user never sees the raw swap.
+  // ① Set wrap to destination (behind the about-to-appear curtain)
   wrap.style.background = color;
   wrap.querySelectorAll('.sr-demo-label,.sr-demo-headline').forEach(el => {
     el.style.color = dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
   });
   const btn = wrap.querySelector('.sr-replay-btn');
-  btn.style.color       = dark ? '#0A0A0A' : '#F0EDE5';
-  btn.style.background  = dark ? '#F0EDE5' : '#0A0A0A';
+  btn.style.color = dark ? '#0A0A0A' : '#F0EDE5';
+  btn.style.background = dark ? '#F0EDE5' : '#0A0A0A';
   btn.style.borderColor = dark ? '#F0EDE5' : '#0A0A0A';
 
-  // Step 2: Build curtain with matchTarget → wrap. Inside play(), _resolveColor()
-  // calls getComputedStyle(wrap).backgroundColor — which now returns `color`.
-  // No need to pass color explicitly; matchTarget reads it automatically.
-  srLastColor = color;
-  initSR(wrap);          // ← matchTarget: wrap
-  demoReveal.replay();   // ← no explicit color arg — matchTarget does the work
+  // ② Pre-color curtain container = destination (eliminates transparent-band flash)
+  _srPrep(wrap);   // reads the just-set wrap background
+
+  // ③ Build reveal — matchTarget reads wrap → bands = destination color
+  initSR(wrap);
+  demoReveal.replay();
 }
 
 let srTimer;
 function srUpdate() {
-  // Update range displays + stats only (no color picker to read)
   const bands = document.getElementById('sr-bands').value;
   const stagger = document.getElementById('sr-stagger').value;
   const dur = document.getElementById('sr-dur').value;
@@ -1309,9 +1332,13 @@ function srUpdate() {
   document.getElementById('sr-stat-dur').textContent = dur + 'ms';
   const total = (parseInt(bands) - 1) * parseInt(stagger) + parseInt(dur);
   document.getElementById('sr-stat-total').textContent = total + 'ms';
-  // Debounced replay — shows the timing change without touching the bg color
   clearTimeout(srTimer);
-  srTimer = setTimeout(() => { initSR(); demoReveal.replay(); }, 350);
+  srTimer = setTimeout(() => {
+    const wrap = document.getElementById('sr-demo-wrap');
+    _srPrep(wrap);
+    initSR(wrap);
+    demoReveal.replay();
+  }, 350);
 }
 
 function srSetAxis(axis, btn) {
@@ -1319,11 +1346,12 @@ function srSetAxis(axis, btn) {
   document.querySelectorAll('#sr-axis-toggle .cp-toggle-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('sr-stat-axis').textContent = axis === 'y' ? 'Left / Right' : 'Up / Down';
-  initSR(); demoReveal.replay();
+  const wrap = document.getElementById('sr-demo-wrap');
+  _srPrep(wrap); initSR(wrap); demoReveal.replay();
 }
 
-/* Init SR on load */
-initSR();
+/* Init SR on load — use matchTarget so coverColor = wrap's actual background */
+initSR(document.getElementById('sr-demo-wrap'));
 
 /* ═══ Constellation Sphere customization ═══ */
 let csTimer;
