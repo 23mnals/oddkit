@@ -49,10 +49,10 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--ink);color:var(--
 .brand{padding:20px 20px 18px;border-bottom:var(--border-1)}
 .brand-name{line-height:0;display:block}
 .brand-sub{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-top:5px}
-.nav{flex:1}
-.nav-group-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);padding:16px 20px 9px;border-bottom:var(--border-1);border-top:var(--border-1)}
-.nav-item{display:block;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);padding:11px 20px;border-bottom:var(--border-1);cursor:pointer;transition:background .08s}
-.nav-item:hover{background:rgba(10,10,10,.07)}
+.nav{flex:1;padding:8px 0}
+.nav-group-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);padding:20px 20px 6px;}
+.nav-item{display:block;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);padding:9px 20px 9px 28px;cursor:pointer;transition:background .08s;border-radius:0}
+.nav-item:hover{background:rgba(10,10,10,.06)}
 .nav-item.active{background:var(--ink);color:var(--bg);font-weight:700}
 .sidebar-footer{padding:14px 20px;border-top:var(--border-1);margin-top:auto}
 .version{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--ink-2)}
@@ -751,7 +751,7 @@ window.addEventListener('wheel', (e) => {
           </div>
         </div>
         <h1 class="comp-title">Constellation<br>Sphere</h1>
-        <p class="comp-desc">几十个手绘图标散布在 3D 球面上缓慢自转，中心叠加姓名列表。拖拽改变方向，hover 姓名时对应图标高亮脉冲。CSS3DRenderer 驱动，图标保持 SVG 清晰度，移动端 60fps。</p>
+        <p class="comp-desc">Dozens of hand-drawn icons distributed across a slowly rotating 3D sphere, with a name list overlaid at the centre. Drag to reorient, hover a name to pulse its mapped icon. Powered by CSS3DRenderer — SVG-sharp at any size, 60fps on mobile.</p>
       </div>
 
       <!-- Preview -->
