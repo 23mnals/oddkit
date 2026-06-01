@@ -102,6 +102,9 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--ink);color:var(--
 .tab-actions{margin-left:auto;display:flex;align-items:center;padding-right:16px}
 .copy-btn{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);border:1px solid var(--ink);padding:5px 14px;display:none;transition:background .08s,color .08s}
 .copy-btn:hover{background:var(--ink);color:var(--bg)}
+.prompt-btn{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--ink);border:1px solid var(--ink);padding:5px 14px;cursor:pointer;transition:opacity .1s;margin-left:8px}
+.prompt-btn:hover{opacity:.75}
+.prompt-btn.copied{background:transparent;color:var(--ink)}
 .pane{display:none}.pane.vis{display:block}
 .preview-wrap{height:1000px;overflow:hidden;position:relative;background:#EBEBE5}
 cube-word-stack{min-height:0!important;height:1000px!important}
@@ -131,6 +134,9 @@ cube-word-stack>img[data-anchor]{display:none!important}
 .cp-toggle{display:flex;height:32px;border:1px solid var(--ink);overflow:hidden}
 .cp-toggle-btn{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:0 14px;display:flex;align-items:center;cursor:pointer;transition:background .1s,color .1s;background:transparent;color:var(--ink)}
 .cp-toggle-btn.active{background:var(--ink);color:var(--bg)}
+/* Copy Prompt button */
+.prompt-btn{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--ink);border:1px solid var(--ink);padding:5px 14px;cursor:pointer;transition:background .1s,color .1s;white-space:nowrap}
+.prompt-btn:hover{background:transparent;color:var(--ink)}
 /* Scroll Airflow Text */
 .sat-rows-wrap{padding:26vh 52px;border-bottom:var(--border);position:relative;}
 .sat-row{display:flex;justify-content:space-between;align-items:baseline;padding:15px 0;border-bottom:1px solid rgba(10,10,10,.1);}
@@ -327,7 +333,7 @@ g.StaircaseReveal=SR;
           <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab('cws','preview',this)">Preview</button>
             <button class="tab-btn" onclick="switchTab('cws','code',this)">Code</button>
-            <div class="tab-actions"><button class="copy-btn" id="cws-copy" onclick="copyCode('cws-code-out')">Copy</button></div>
+            <div class="tab-actions"><button class="copy-btn" id="cws-copy" onclick="copyCode('cws-code-out')">Copy</button><button class="prompt-btn" onclick="copyPrompt('cws',this)">Copy Prompt</button></div>
           </div>
           <div class="pane vis" id="cws-pane-preview">
             <div class="preview-wrap" id="cws-preview-wrap">
@@ -577,7 +583,7 @@ meaning</textarea>
           <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab('sr','preview',this)">Preview</button>
             <button class="tab-btn" onclick="switchTab('sr','code',this)">Code</button>
-            <div class="tab-actions"><button class="copy-btn" id="sr-copy" onclick="copyCode('sr-code-out')">Copy</button></div>
+            <div class="tab-actions"><button class="copy-btn" id="sr-copy" onclick="copyCode('sr-code-out')">Copy</button><button class="prompt-btn" onclick="copyPrompt('sr',this)">Copy Prompt</button></div>
           </div>
           <div class="pane vis" id="sr-pane-preview">
             <div class="sr-demo-wrap" id="sr-demo-wrap">
@@ -776,7 +782,7 @@ window.addEventListener('wheel', (e) => {
           <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab('cs','preview',this)">Preview</button>
             <button class="tab-btn" onclick="switchTab('cs','code',this)">Code</button>
-            <div class="tab-actions"><button class="copy-btn" id="cs-copy" onclick="copyCode('cs-code-out')">Copy</button></div>
+            <div class="tab-actions"><button class="copy-btn" id="cs-copy" onclick="copyCode('cs-code-out')">Copy</button><button class="prompt-btn" onclick="copyPrompt('cs',this)">Copy Prompt</button></div>
           </div>
           <div class="pane vis" id="cs-pane-preview">
             <!-- sphere is created dynamically on navigate to avoid display:none init issue -->
@@ -986,7 +992,7 @@ Quinn</textarea>
           <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab('sat','preview',this)">Preview</button>
             <button class="tab-btn" onclick="switchTab('sat','code',this)">Code</button>
-            <div class="tab-actions"><button class="copy-btn" id="sat-copy" onclick="copyCode('sat-code-out')" style="display:none">Copy</button></div>
+            <div class="tab-actions"><button class="copy-btn" id="sat-copy" onclick="copyCode('sat-code-out')" style="display:none">Copy</button><button class="prompt-btn" onclick="copyPrompt('sat',this)">Copy Prompt</button></div>
           </div>
           <div class="pane vis" id="sat-pane-preview" style="padding:0;line-height:0">
             <iframe id="sat-iframe" src="public/previews/sat-preview.html"
@@ -1451,6 +1457,543 @@ function satUpdate() {
     }, '*');
   }, 350);
 }
+
+/* ═══ Copy Prompt ═══ */
+function copyPrompt(id, btn) {
+  const text = PROMPTS[id];
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1600);
+  });
+}
+
+const PROMPTS = {
+
+cws: `## Integrate the <CubeWordStack /> component from Oddkit
+You are helping integrate an open-source animation component into an existing React application.
+
+### Component: CubeWordStack
+### Source: https://23mnals.github.io/oddkit/public/cube-word-stack.js
+### Dependencies: none (zero dependencies, Shadow DOM)
+
+---
+
+### What this component renders
+- Words stacked vertically, each word sits on a white highlight block
+- Every block is a 3D cube (CSS preserve-3d): on hover it rotates **−90°** around the Y axis to the next face. Each hover is a deliberate one-step-forward cycle: right face → back face → left face → front face → right again. **There is no snap-back** — the rotation accumulates. Subsequent hovers keep cycling through the 4 faces.
+- Floating SVG/PNG ornament images live around the stack; when any cube is hovered they push outward along their anchor vector (CSS translate, spring-easing), then retract
+- On first mount: cubes stagger-cascade into view from a "below the fold" position, each delayed by introStagger ms
+
+---
+
+### Usage Example
+\`\`\`jsx
+import CubeWordStack from './CubeWordStack';
+
+<CubeWordStack
+  words={['A collective', 'of Odd Minds']}
+  bg="#EBEBE5"
+  ink="#0A0A0A"
+  block="#FFFFFF"
+  font='"Georgia", serif'
+  style={{ width: '100%', minHeight: '100vh' }}
+  ornaments={[
+    { src: '/ornament-cross.svg', anchor: 'top-right',    size: 80, offset: 60 },
+    { src: '/ornament-circle.svg', anchor: 'bottom-left', size: 64, offset: 48 },
+  ]}
+/>
+\`\`\`
+
+### Props
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| words | string[] | ['Design','Build','Ship'] | One word/phrase per cube |
+| bg | string | '#EBEBE5' | Page background colour |
+| block | string | '#FFFFFF' | Cube face background colour |
+| ink | string | '#0A0A0A' | Text and border colour |
+| font | string | '"Georgia", serif' | Font family stack |
+| fontMin | string | '34px' | clamp() min font size |
+| fontVw | string | '4.4vw' | clamp() fluid font size |
+| fontMax | string | '72px' | clamp() max font size |
+| pushMaxX | number | 70 | Max ornament horizontal push on hover (px) |
+| pushMaxY | number | 14 | Max ornament vertical push on hover (px) |
+| introStagger | number | 110 | Delay between cube entrance animations (ms) |
+| ornaments | array | [] | \`[{ src, anchor, size, offset }]\` — anchor: 'top-right'/'top-left'/'bottom-right'/'bottom-left' |
+
+### Full Component Source
+\`\`\`jsx
+// CubeWordStack.jsx
+import { useEffect } from 'react';
+
+let _cwsLoaded = false;
+function loadCWS() {
+  if (_cwsLoaded) return;
+  _cwsLoaded = true;
+  const s = document.createElement('script');
+  s.src = 'https://23mnals.github.io/oddkit/public/cube-word-stack.js';
+  document.head.appendChild(s);
+}
+
+export default function CubeWordStack({
+  words = ['Design', 'Build', 'Ship'],
+  bg = '#EBEBE5',
+  block = '#FFFFFF',
+  ink = '#0A0A0A',
+  font = '"Georgia", serif',
+  fontMin = '34px',
+  fontVw = '4.4vw',
+  fontMax = '72px',
+  pushMaxX = 70,
+  pushMaxY = 14,
+  introStagger = 110,
+  ornaments = [],
+  style,
+}) {
+  useEffect(() => { loadCWS(); }, []);
+
+  return (
+    <cube-word-stack
+      text={words.join('|')}
+      bg={bg}
+      block={block}
+      ink={ink}
+      font={font}
+      font-min={fontMin}
+      font-vw={fontVw}
+      font-max={fontMax}
+      push-max-x={String(pushMaxX)}
+      push-max-y={String(pushMaxY)}
+      intro-stagger={String(introStagger)}
+      style={{ display: 'block', ...style }}
+    >
+      {ornaments.map((o, i) => (
+        <img
+          key={i}
+          src={o.src}
+          data-anchor={o.anchor || 'top-right'}
+          data-size={String(o.size || 80)}
+          data-offset={String(o.offset || 60)}
+          alt=""
+        />
+      ))}
+    </cube-word-stack>
+  );
+}
+\`\`\`
+
+### Integration Instructions
+1. Copy CubeWordStack.jsx into your components folder
+2. The Web Component script loads from the Oddkit CDN on first mount — no npm install needed
+3. Pass ornament images via the \`ornaments\` prop array; each ornament floats at its anchor corner and gets pushed on cube hover
+4. The font is fluid — control the size range with fontMin/fontVw/fontMax (CSS clamp)
+5. In React 18 the custom element tag (\`<cube-word-stack>\`) works in JSX; React 19 handles this even better`,
+
+sr: `## Integrate the <StaircaseReveal /> component from Oddkit
+You are helping integrate an open-source page-transition component into an existing React application.
+
+### Component: StaircaseReveal
+### Source: https://23mnals.github.io/oddkit/public/staircase-reveal.js
+### Dependencies: none (pure CSS transitions)
+
+---
+
+### What this component does
+- Covers the viewport with N equal-height bands (default 11)
+- On trigger: all bands slide simultaneously to the same side (random left or right each call)
+- Each band has an incrementally larger transition-delay — the staggered delays make the bands' LEADING EDGES form a continuous diagonal line sweeping across the screen (the "staircase")
+- Band colour = destination page's background-color, read via matchTarget. The curtain IS the next page arriving — when it slides off, the page behind is already the same colour → zero flash
+- After all bands exit, fires onRevealed callback
+- Pure CSS transitions, no GSAP, no requestAnimationFrame loop
+
+### Critical: matchTarget must always be set
+The bands must always match the destination background. Pass \`matchTarget\` pointing to the destination container. The component calls \`getComputedStyle(target).backgroundColor\` inside \`play()\` — after the destination is already rendered — so it reads the correct value every time.
+
+---
+
+### Usage Example
+\`\`\`jsx
+import { useStaircaseReveal } from './useStaircaseReveal';
+
+function App() {
+  const nextPageRef = useRef(null);
+  const { play, replay } = useStaircaseReveal({
+    matchTarget: nextPageRef,  // bands auto-read nextPageRef's background-color
+    bandCount: 11,
+    staggerMs: 68,
+    bandDur: 760,
+    onRevealed: () => console.log('page revealed'),
+  });
+
+  return (
+    <>
+      <button onClick={() => replay()}>Go to next page</button>
+      <div ref={nextPageRef} style={{ background: '#F9FF7D' }}>
+        Next page content
+      </div>
+    </>
+  );
+}
+\`\`\`
+
+### Options
+| Option | Default | Description |
+|--------|---------|-------------|
+| matchTarget | — | React ref or CSS selector pointing to destination container. Bands auto-read its background-color on every play(). |
+| bandCount | 11 | Number of bands. More = finer staircase diagonal |
+| staggerMs | 68 | Delay added per band (ms). Controls the staircase angle |
+| bandDur | 760 | Individual band slide duration (ms) |
+| ease | 'cubic-bezier(0.76,0,0.18,1)' | CSS easing — heavy deceleration for cinematic feel |
+| axis | 'y' | 'y' = left/right slide, 'x' = up/down slide |
+| onRevealed | — | Callback fired after last band exits |
+
+### Full Component Source
+\`\`\`jsx
+// useStaircaseReveal.js
+import { useEffect, useRef } from 'react';
+
+let _srLoaded = false;
+function loadSR() {
+  if (_srLoaded) return Promise.resolve();
+  return new Promise(resolve => {
+    const s = document.createElement('script');
+    s.src = 'https://23mnals.github.io/oddkit/public/staircase-reveal.js';
+    s.onload = () => { _srLoaded = true; resolve(); };
+    document.head.appendChild(s);
+  });
+}
+
+export function useStaircaseReveal({
+  matchTarget,
+  bandCount = 11,
+  staggerMs = 68,
+  bandDur = 760,
+  ease = 'cubic-bezier(0.76,0,0.18,1)',
+  axis = 'y',
+  onRevealed,
+} = {}) {
+  const revealRef = useRef(null);
+
+  useEffect(() => {
+    loadSR().then(() => {
+      const target =
+        typeof matchTarget === 'string'
+          ? document.querySelector(matchTarget)
+          : matchTarget?.current ?? null;
+
+      revealRef.current = new window.StaircaseReveal({
+        bandCount,
+        matchTarget: target,
+        staggerMs,
+        bandDur,
+        ease,
+        axis,
+        onRevealed,
+      });
+    });
+  }, []);
+
+  return {
+    // Call on navigate — bands slide off revealing matchTarget's background
+    play:   (dir)         => revealRef.current?.play(dir),
+    // Re-cover screen and play again (e.g. on page enter)
+    replay: (dir, color)  => revealRef.current?.replay(dir, color),
+  };
+}
+\`\`\`
+
+### Integration Instructions
+1. Copy useStaircaseReveal.js into your hooks folder
+2. Always pass \`matchTarget\` — a ref to the destination section/page container whose background-color the bands must match
+3. Ensure the destination element's background is set BEFORE \`play()\` / \`replay()\` is called; the component reads it at animation start
+4. For SPA route transitions: call \`replay()\` when starting navigation and \`onRevealed\` to complete the route change`,
+
+cs: `## Integrate the <ConstellationSphere /> component from Oddkit
+You are helping integrate an open-source 3D sphere component into an existing React application.
+
+### Component: ConstellationSphere
+### Source: https://23mnals.github.io/oddkit/constellation-sphere.js
+### Dependencies: Three.js r140 (CSS3DRenderer — no WebGL)
+
+---
+
+### What this component renders
+- A slowly auto-rotating 3D sphere with ~56 hand-drawn SVG icons distributed across its surface using a Fibonacci/golden-angle lattice for even spacing
+- Rendered with Three.js CSS3DRenderer (NOT Canvas/WebGL): icons are real SVG DOM elements, stay crisp at any resolution, and can be styled with CSS
+- Rotation: constant yaw + subtle pitch sine-wave oscillation
+- Drag interaction: pointerdown + pointermove to rotate yaw and pitch; releases back to auto-rotate from the new angle
+- Hover pause: auto-rotation stops while cursor is over the sphere area
+- Icons depth-sort via opacity: front icons are fully opaque, back icons fade to ~40%
+- Central names list overlay: hover a name → all other names fade to 28% opacity + shift right; the sphere icon mapped to that name scales to 1.7× with a glow drop-shadow pulse
+- Custom ornament images can be added via the ornaments attribute (URL list, appear every 6th icon slot)
+
+---
+
+### Usage Example
+\`\`\`jsx
+import ConstellationSphere from './ConstellationSphere';
+
+<ConstellationSphere
+  names={['Aria', 'Bo', 'Cyrus', 'Dahlia', 'Ezra', 'Fenix', 'Giles', 'Hana']}
+  count={56}
+  radius={320}
+  rotateSpeed={0.30}
+  ink="#E8E4DD"
+  bg="#0A0A0A"
+  label="The Collective"
+  style={{ width: '100%', height: '100vh' }}
+/>
+\`\`\`
+
+### Props
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| names | string[] | 17 placeholders | Names shown in centre list. Hover triggers icon pulse. |
+| count | number | 56 | Total icons on sphere surface |
+| radius | number | 320 | Sphere radius in scene units |
+| rotateSpeed | number | 0.30 | Auto-rotation speed in rad/s. 0 = stopped. |
+| ink | string | '#E8E4DD' | Stroke/fill colour for all 25 built-in SVG glyphs + name text |
+| bg | string | '#0A0A0A' | Component background colour |
+| label | string | 'The Collective' | Small mono label shown above the name list |
+| ornaments | string[] | [] | URLs to custom SVG/PNG images; appear every 6th icon slot |
+
+### Full Component Source
+\`\`\`jsx
+// ConstellationSphere.jsx
+import { useEffect, useRef } from 'react';
+
+let _csLoaded = false;
+function loadCS() {
+  if (_csLoaded) return Promise.resolve();
+  const load = src => new Promise(r => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = r;
+    document.head.appendChild(s);
+  });
+  return load('https://unpkg.com/three@0.140.0/build/three.min.js')
+    .then(() => load('https://unpkg.com/three@0.140.0/examples/js/renderers/CSS3DRenderer.js'))
+    .then(() => load('https://23mnals.github.io/oddkit/constellation-sphere.js'))
+    .then(() => { _csLoaded = true; });
+}
+
+export default function ConstellationSphere({
+  names = ['Aria','Bo','Cyrus','Dahlia','Ezra','Fenix','Giles','Hana'],
+  count = 56,
+  radius = 320,
+  rotateSpeed = 0.30,
+  ink = '#E8E4DD',
+  bg = '#0A0A0A',
+  label = 'The Collective',
+  ornaments = [],
+  style,
+}) {
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    let sphere;
+    loadCS().then(() => {
+      if (!wrapRef.current) return;
+      sphere = document.createElement('constellation-sphere');
+      sphere.style.cssText = 'width:100%;height:100%;display:block';
+      sphere.setAttribute('names',        names.join(','));
+      sphere.setAttribute('count',        String(count));
+      sphere.setAttribute('radius',       String(radius));
+      sphere.setAttribute('rotate-speed', String(rotateSpeed));
+      sphere.setAttribute('ink',          ink);
+      sphere.setAttribute('bg',           bg);
+      sphere.setAttribute('label',        label + ' · ' + names.length);
+      if (ornaments.length) sphere.setAttribute('ornaments', ornaments.join(','));
+      wrapRef.current.appendChild(sphere);
+    });
+    return () => { sphere?.remove(); };
+  }, []);
+
+  return (
+    <div
+      ref={wrapRef}
+      style={{ background: bg, width: '100%', height: '100vh', overflow: 'hidden', ...style }}
+    />
+  );
+}
+\`\`\`
+
+### Integration Instructions
+1. Copy ConstellationSphere.jsx into your components folder
+2. Three.js r140 and the component script load from CDN on first mount — no npm install needed
+3. Scripts load in sequence (Three global → CSS3DRenderer → component) so the custom element is guaranteed to be defined before use
+4. The component uses CSS3DRenderer, not WebGL — icons are real SVG DOM elements, always crisp, no canvas required
+5. Avoid display:none on the container at mount time — the component reads clientWidth/Height for camera setup`,
+
+sat: `## Integrate the <ScrollAirflowText /> component from Oddkit
+You are helping integrate an open-source scroll-driven text animation component into an existing React application.
+
+### Component: ScrollAirflowText
+### Source: https://23mnals.github.io/oddkit/public/scroll-airflow-text.js
+### Dependencies: none
+
+---
+
+### What this component does
+- A fixed icon sits in the center of the viewport (position: fixed)
+- Text rows are split into label (left side) and value (right side)
+- On every scroll event, each row's vertical distance to the icon is measured
+- Push strength follows a smoothstep curve: strength = t²(3−2t) where t = 1 − (|dy| / falloffY); rows beyond falloffY get zero push
+- Labels are pushed LEFT (negative X), values are pushed RIGHT (positive X)
+- The minimum push is clamped to \`ambient\` — rows that wouldn't naturally overlap the icon still "feel the wind"
+- Maximum displacement is capped at \`maxPush\`
+- All transforms are \`translate3d(x, 0, 0)\` on the GPU compositing layer — no layout reflow triggered
+- The icon cycles automatically: after each \`swapThresholdPx\` of cumulative scroll, it cross-fades (opacity + micro-rotate) to the next icon in the array
+- On window resize, all row positions are re-measured automatically
+
+---
+
+### Usage Example
+\`\`\`jsx
+import ScrollAirflowText from './ScrollAirflowText';
+
+const rows = [
+  { label: 'Studio',    value: 'Somewhere Creative' },
+  { label: 'Founded',   value: '2021' },
+  { label: 'Location',  value: 'San Francisco, CA' },
+  { label: 'Services',  value: 'Brand, Motion, Code' },
+];
+
+const icons = [
+  '/icons/asterisk.svg',
+  '/icons/target.svg',
+  '/icons/diamond.svg',
+];
+
+<ScrollAirflowText
+  rows={rows}
+  icons={icons}
+  iconSize={72}
+  maxPush={280}
+  falloffY={320}
+  iconRadius={90}
+  ambient={60}
+  swapThresholdPx={300}
+/>
+\`\`\`
+
+### Props
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| rows | array | [] | \`[{ label, value }]\` — each becomes one row |
+| icons | string[] | [] | Image URLs for the cycling icon. Needs ≥ 2 for cycling effect. |
+| iconSize | number | 72 | Icon slot width and height (px) |
+| maxPush | number | 280 | Maximum horizontal displacement per element (px) |
+| falloffY | number | 320 | Vertical distance from icon beyond which push = 0 (px) |
+| iconRadius | number | 90 | Clearance radius around icon — text is pushed at least this far out |
+| ambient | number | 60 | Minimum push baseline in the influence zone |
+| swapThresholdPx | number | 300 | Cumulative scroll (px) before icon advances to next |
+| topPadding | string | '46vh' | Space above first row (needed for scroll room) |
+| bottomPadding | string | '46vh' | Space below last row |
+
+### Full Component Source
+\`\`\`jsx
+// ScrollAirflowText.jsx
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+
+let _satLoaded = false;
+function loadSAT() {
+  if (_satLoaded) return Promise.resolve();
+  return new Promise(resolve => {
+    const s = document.createElement('script');
+    s.src = 'https://23mnals.github.io/oddkit/public/scroll-airflow-text.js';
+    s.onload = () => { _satLoaded = true; resolve(); };
+    document.head.appendChild(s);
+  });
+}
+
+export default function ScrollAirflowText({
+  rows = [],
+  icons = [],
+  iconSize = 72,
+  maxPush = 280,
+  falloffY = 320,
+  iconRadius = 90,
+  ambient = 60,
+  swapThresholdPx = 300,
+  topPadding = '46vh',
+  bottomPadding = '46vh',
+  rowStyle,
+  labelStyle,
+  valueStyle,
+}) {
+  const iconSlotRef = useRef(null);
+  const rowsRef = useRef(null);
+  const flowRef = useRef(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => { loadSAT().then(() => setReady(true)); }, []);
+
+  useEffect(() => {
+    if (!ready || !iconSlotRef.current || !rowsRef.current) return;
+    flowRef.current = new window.ScrollAirflowText({
+      iconEl:          iconSlotRef.current,
+      icons,
+      cells:           rowsRef.current.querySelectorAll('[data-push]'),
+      sideOf:          el => el.dataset.side === 'left' ? -1 : 1,
+      maxPush, falloffY, iconRadius, ambient, swapThresholdPx,
+    });
+    return () => flowRef.current?.destroy();
+  }, [ready]);
+
+  const iconPortal = (
+    <div style={{
+      position: 'fixed', top: '50%', left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: iconSize, height: iconSize,
+      pointerEvents: 'none', zIndex: 50,
+    }}>
+      <div ref={iconSlotRef} style={{ position: 'absolute', inset: 0 }} />
+    </div>
+  );
+
+  return (
+    <>
+      {typeof document !== 'undefined' && createPortal(iconPortal, document.body)}
+      <div ref={rowsRef} style={{ paddingTop: topPadding, paddingBottom: bottomPadding }}>
+        {rows.map((row, i) => (
+          <div key={i} style={{
+            display: 'flex', justifyContent: 'space-between',
+            alignItems: 'baseline', padding: '14px 0',
+            borderBottom: '1px solid rgba(0,0,0,0.12)',
+            ...(i === 0 ? { borderTop: '1px solid rgba(0,0,0,0.12)' } : {}),
+            ...rowStyle,
+          }}>
+            <span data-push data-side="left" style={{
+              fontFamily: 'monospace', fontSize: '10px',
+              letterSpacing: '0.13em', textTransform: 'uppercase',
+              color: 'rgba(0,0,0,0.45)', ...labelStyle,
+            }}>
+              {row.label}
+            </span>
+            <span data-push data-side="right" style={{
+              fontSize: '14px', textAlign: 'right', ...valueStyle,
+            }}>
+              {row.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+\`\`\`
+
+### Integration Instructions
+1. Copy ScrollAirflowText.jsx into your components folder
+2. The icon is rendered into \`document.body\` via a portal so it sits above all content at \`position: fixed\`
+3. The page/container must have enough vertical height to scroll — \`topPadding\` and \`bottomPadding\` create the scroll room
+4. For Next.js: the \`typeof document !== 'undefined'\` guard prevents SSR errors on the portal
+5. Pass your icon images via the \`icons\` prop — SVGs at 64–80px work best; they cycle automatically on scroll`
+
+}; // end PROMPTS
 </script>
 </body>
 </html>
