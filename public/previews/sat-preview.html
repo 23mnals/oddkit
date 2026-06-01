@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#EBEBE5;color:#0A0A0A;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;overflow-y:auto;}
+#icon-stage{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;z-index:10;pointer-events:none;}
+#icon-slot{position:absolute;inset:0;}
+.rows{padding:48vh 56px;max-width:100%;}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:15px 0;border-bottom:1px solid rgba(10,10,10,.1);}
+.row:first-child{border-top:1px solid rgba(10,10,10,.1);}
+.lbl{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:rgba(10,10,10,.45);will-change:transform;}
+.val{font-size:14px;font-weight:400;color:#0A0A0A;text-align:right;will-change:transform;}
+</style>
+</head>
+<body>
+<div id="icon-stage"><div id="icon-slot"></div></div>
+<div class="rows">
+  <div class="row"><span class="lbl" data-push>Studio</span><span class="val" data-push>Somewhere Creative</span></div>
+  <div class="row"><span class="lbl" data-push>Founded</span><span class="val" data-push>2021</span></div>
+  <div class="row"><span class="lbl" data-push>Team</span><span class="val" data-push>12 people</span></div>
+  <div class="row"><span class="lbl" data-push>Services</span><span class="val" data-push>Brand, Motion, Code</span></div>
+  <div class="row"><span class="lbl" data-push>Location</span><span class="val" data-push>San Francisco, CA</span></div>
+  <div class="row"><span class="lbl" data-push>Time Zone</span><span class="val" data-push>GMT −8</span></div>
+  <div class="row"><span class="lbl" data-push>Latest Work</span><span class="val" data-push>Oddkit 0.1</span></div>
+  <div class="row"><span class="lbl" data-push>Projects</span><span class="val" data-push>47 shipped</span></div>
+  <div class="row"><span class="lbl" data-push>Awards</span><span class="val" data-push>3 × Awwwards</span></div>
+  <div class="row"><span class="lbl" data-push>Press</span><span class="val" data-push>It's Nice That</span></div>
+  <div class="row"><span class="lbl" data-push>Education</span><span class="val" data-push>RISD, RCA</span></div>
+  <div class="row"><span class="lbl" data-push>Tools</span><span class="val" data-push>Figma, After Effects</span></div>
+  <div class="row"><span class="lbl" data-push>Stack</span><span class="val" data-push>React, Three.js</span></div>
+  <div class="row"><span class="lbl" data-push>Open Source</span><span class="val" data-push>oddkit · motion-kit</span></div>
+  <div class="row"><span class="lbl" data-push>Availability</span><span class="val" data-push>Open for 2026</span></div>
+</div>
+<script src="../scroll-airflow-text.js"></script>
+<script>
+function enc(s){return 'data:image/svg+xml,'+encodeURIComponent(s);}
+var A='stroke="#0A0A0A" stroke-width="1.5" stroke-linecap="round"';
+var ICONS=[
+  enc('<svg viewBox="0 0 32 32" fill="none" '+A+' xmlns="http://www.w3.org/2000/svg"><line x1="16" y1="3" x2="16" y2="29"/><line x1="3" y1="16" x2="29" y2="16"/><line x1="7" y1="7" x2="25" y2="25"/><line x1="25" y1="7" x2="7" y2="25"/></svg>'),
+  enc('<svg viewBox="0 0 32 32" fill="none" '+A+' xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="11"/><circle cx="16" cy="16" r="5.5"/><circle cx="16" cy="16" r="1.5" fill="#0A0A0A" stroke="none"/></svg>'),
+  enc('<svg viewBox="0 0 32 32" fill="none" '+A+' stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M16 3L29 16L16 29L3 16Z"/><circle cx="16" cy="16" r="4.5"/></svg>'),
+  enc('<svg viewBox="0 0 32 32" fill="none" '+A+' xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="11"/><path d="M16 5 Q23 16 16 27"/><path d="M16 5 Q9 16 16 27"/><line x1="5" y1="16" x2="27" y2="16"/></svg>'),
+];
+var _sat=null;
+function init(opts){
+  if(_sat){_sat.destroy();_sat=null;}
+  _sat=new ScrollAirflowText(Object.assign({
+    iconEl:document.getElementById('icon-slot'),
+    icons:ICONS,
+    cells:'[data-push]',
+    sideOf:function(el){return el.classList.contains('lbl')?-1:1;},
+    maxPush:380,falloffY:360,iconRadius:110,ambient:80,swapThresholdPx:300
+  },opts||{}));
+}
+init();
+window.addEventListener('message',function(e){
+  if(e.data&&e.data.type==='sat-init')init(e.data.opts);
+});
+</script>
+</body>
+</html>

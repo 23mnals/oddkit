@@ -24,7 +24,7 @@
   --code-ink: #F0EDE5;
   --sans:     "Plus Jakarta Sans", system-ui, sans-serif;
   --mono:     "JetBrains Mono", "Courier New", monospace;
-  --border:   2px solid #0A0A0A;
+  --border:   1px solid #0A0A0A;
   --border-1: 1px solid rgba(10,10,10,0.15);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -51,9 +51,13 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--ink);color:var(--
 .brand-sub{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-top:5px}
 .nav{flex:1;padding:8px 0}
 .nav-group-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);padding:20px 20px 6px;}
-.nav-item{display:block;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);padding:9px 20px 9px 28px;cursor:pointer;transition:background .08s;border-radius:0}
-.nav-item:hover{background:rgba(10,10,10,.06)}
-.nav-item.active{background:var(--ink);color:var(--bg);font-weight:700}
+.nav-item{position:relative;display:block;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);padding:9px 20px 9px 32px;cursor:pointer;transition:background .1s,color .1s;}
+/* Vertical bar — default: short, low-opacity */
+.nav-item::before{content:'';position:absolute;left:20px;top:50%;transform:translateY(-50%);width:1.5px;height:28%;background:rgba(10,10,10,.18);border-radius:1px;transition:height .18s ease,background .18s ease;}
+.nav-item:hover::before{height:44%;background:rgba(10,10,10,.38);}
+/* Active: tall, full-opacity black bar; text stays ink, subtle bg */
+.nav-item.active{background:rgba(10,10,10,.06);color:var(--ink);font-weight:700;}
+.nav-item.active::before{height:58%;background:#0A0A0A;width:2px;}
 .sidebar-footer{padding:14px 20px;border-top:var(--border-1);margin-top:auto}
 .version{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--ink-2)}
 
@@ -961,32 +965,54 @@ Quinn</textarea>
           </div>
         </div>
         <h1 class="comp-title">Scroll<br>Airflow Text</h1>
-        <p class="comp-desc">A fixed icon sits at the centre of the screen. As you scroll, any text row approaching the icon gets pushed sideways — label left, value right — by an invisible airflow. Rows spring back once the icon passes. The icon cycles automatically as you scroll.</p>
+        <p class="comp-desc">A fixed icon sits at the centre. As you scroll, any text row approaching the icon gets pushed sideways — label left, value right — by an invisible airflow. Rows spring back once the icon passes. The icon cycles automatically.</p>
       </div>
 
-      <!-- Preview — the page IS the demo -->
-      <div class="section" style="padding-bottom:0">
+      <!-- Preview -->
+      <div class="section">
         <div class="section-eyebrow">Preview</div>
-        <p class="prose" style="margin-bottom:0">Scroll down through the info sheet below. The icon stays fixed in the centre — watch rows split as they pass through it.</p>
-      </div>
+        <div class="preview-card">
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('sat','preview',this)">Preview</button>
+            <button class="tab-btn" onclick="switchTab('sat','code',this)">Code</button>
+            <div class="tab-actions"><button class="copy-btn" id="sat-copy" onclick="copyCode('sat-code-out')" style="display:none">Copy</button></div>
+          </div>
+          <div class="pane vis" id="sat-pane-preview" style="padding:0;line-height:0">
+            <iframe id="sat-iframe" src="public/previews/sat-preview.html"
+              style="width:100%;height:640px;border:none;display:block;"
+              scrolling="yes"></iframe>
+          </div>
+          <div class="pane" id="sat-pane-code">
+            <pre class="code-pane" id="sat-code-out">&lt;script src="scroll-airflow-text.js"&gt;&lt;/script&gt;
 
-      <!-- Live rows — scroll these past the fixed icon -->
-      <div class="sat-rows-wrap" id="sat-rows-wrap">
-        <div class="sat-row"><span class="sat-l" data-push-sat>Studio</span><span class="sat-r" data-push-sat>Somewhere Creative</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Founded</span><span class="sat-r" data-push-sat>2021</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Team</span><span class="sat-r" data-push-sat>12 people</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Services</span><span class="sat-r" data-push-sat>Brand, Motion, Code</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Location</span><span class="sat-r" data-push-sat>San Francisco, CA</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Time Zone</span><span class="sat-r" data-push-sat>GMT −8</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Latest Work</span><span class="sat-r" data-push-sat>Oddkit 0.1</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Projects Shipped</span><span class="sat-r" data-push-sat>47</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Awards</span><span class="sat-r" data-push-sat>3 × Awwwards</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Press</span><span class="sat-r" data-push-sat>It's Nice That</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Education</span><span class="sat-r" data-push-sat>RISD, RCA</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Tools</span><span class="sat-r" data-push-sat>Figma, After Effects</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Stack</span><span class="sat-r" data-push-sat>React, Three.js</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Open Source</span><span class="sat-r" data-push-sat>oddkit · motion-kit</span></div>
-        <div class="sat-row"><span class="sat-l" data-push-sat>Availability</span><span class="sat-r" data-push-sat>Open for 2026</span></div>
+&lt;!-- Fixed icon container --&gt;
+&lt;div id="icon-stage" style="position:fixed;top:50%;left:50%;
+     transform:translate(-50%,-50%);width:72px;height:72px;
+     pointer-events:none;z-index:10"&gt;
+  &lt;div id="icon-slot" style="position:absolute;inset:0"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Add data-push to any element you want pushed --&gt;
+&lt;div class="row"&gt;
+  &lt;span class="label" data-push&gt;Location&lt;/span&gt;
+  &lt;span class="value" data-push&gt;San Francisco&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+new ScrollAirflowText({
+  iconEl:    document.querySelector('#icon-slot'),
+  icons:     ['icon-a.svg', 'icon-b.svg', 'icon-c.svg'],
+  cells:     '[data-push]',
+  sideOf:    el =&gt; el.classList.contains('label') ? -1 : 1,
+  maxPush:    380,
+  falloffY:   360,
+  iconRadius: 110,
+  ambient:    80,
+  swapThresholdPx: 300,
+});
+&lt;/script&gt;</pre>
+          </div>
+        </div>
       </div>
 
       <!-- Customize -->
@@ -1108,10 +1134,6 @@ Quinn</textarea>
   </main>
 </div>
 
-<!-- SAT icon stage — fixed, shown only on scroll-airflow-text page -->
-<div id="sat-icon-stage" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;z-index:50;pointer-events:none;display:none;">
-  <div id="sat-icon-slot" style="position:absolute;inset:0;"></div>
-</div>
 
 <script>
 /* ── Navigation ── */
@@ -1128,21 +1150,6 @@ function navigate(slug, el) {
     customElements.whenDefined('constellation-sphere').then(function () {
       setTimeout(initCS, 60);
     });
-  }
-  // Scroll Airflow Text — show icon stage and init; hide + destroy when leaving.
-  const satStage = document.getElementById('sat-icon-stage');
-  if (slug === 'scroll-airflow-text') {
-    satStage.style.display = 'block';
-    // Position icon in center of content area (main column, not sidebar)
-    const mainEl = document.querySelector('.main');
-    if (mainEl) {
-      const r = mainEl.getBoundingClientRect();
-      satStage.style.left = (r.left + r.width / 2) + 'px';
-    }
-    setTimeout(initSAT, 100);
-  } else {
-    satStage.style.display = 'none';
-    if (window._satInst) { window._satInst.destroy(); window._satInst = null; }
   }
 }
 
@@ -1381,59 +1388,29 @@ function csToggleHoverPause(input) {
 }
 
 /* ═══ Scroll Airflow Text ═══ */
-// 4 geometric SVG icons used as data URIs — no external files needed in demo
-const _SAT_ICONS = (function () {
-  function enc(svg) { return 'data:image/svg+xml,' + encodeURIComponent(svg); }
-  const S = 'stroke="#0A0A0A" stroke-width="1.5" stroke-linecap="round"';
-  return [
-    enc(`<svg viewBox="0 0 32 32" fill="none" ${S} xmlns="http://www.w3.org/2000/svg"><line x1="16" y1="3" x2="16" y2="29"/><line x1="3" y1="16" x2="29" y2="16"/><line x1="7" y1="7" x2="25" y2="25"/><line x1="25" y1="7" x2="7" y2="25"/></svg>`),
-    enc(`<svg viewBox="0 0 32 32" fill="none" ${S} xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="11"/><circle cx="16" cy="16" r="5.5"/><circle cx="16" cy="16" r="1.5" fill="#0A0A0A" stroke="none"/></svg>`),
-    enc(`<svg viewBox="0 0 32 32" fill="none" ${S} stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M16 3L29 16L16 29L3 16Z"/><circle cx="16" cy="16" r="4.5"/></svg>`),
-    enc(`<svg viewBox="0 0 32 32" fill="none" ${S} xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="11"/><path d="M16 5 Q23 16 16 27"/><path d="M16 5 Q9 16 16 27"/><line x1="5" y1="16" x2="27" y2="16"/></svg>`),
-  ];
-})();
-
-let _satInst = null;
 let _satTimer;
-
-function initSAT() {
-  if (window._satInst) { window._satInst.destroy(); window._satInst = null; }
-
-  // Re-centre icon stage in case window was resized
-  const mainEl = document.querySelector('.main');
-  const stage  = document.getElementById('sat-icon-stage');
-  if (mainEl && stage) {
-    const r = mainEl.getBoundingClientRect();
-    stage.style.left = (r.left + r.width / 2) + 'px';
-  }
-
-  const maxPush    = parseInt(document.getElementById('sat-max-push').value);
-  const falloffY   = parseInt(document.getElementById('sat-falloff').value);
-  const iconRadius = parseInt(document.getElementById('sat-radius').value);
-  const ambient    = parseInt(document.getElementById('sat-ambient').value);
-  const swapPx     = parseInt(document.getElementById('sat-swap').value);
-
-  window._satInst = new ScrollAirflowText({
-    iconEl:          document.getElementById('sat-icon-slot'),
-    icons:           _SAT_ICONS,
-    cells:           '[data-push-sat]',
-    sideOf:          el => el.classList.contains('sat-l') ? -1 : 1,
-    maxPush,
-    falloffY,
-    iconRadius,
-    ambient,
-    swapThresholdPx: swapPx,
-  });
-}
-
 function satUpdate() {
-  document.getElementById('sat-max-push-val').textContent = document.getElementById('sat-max-push').value + 'px';
-  document.getElementById('sat-falloff-val').textContent  = document.getElementById('sat-falloff').value  + 'px';
-  document.getElementById('sat-radius-val').textContent   = document.getElementById('sat-radius').value   + 'px';
-  document.getElementById('sat-ambient-val').textContent  = document.getElementById('sat-ambient').value  + 'px';
-  document.getElementById('sat-swap-val').textContent     = document.getElementById('sat-swap').value     + 'px';
+  const v = id => document.getElementById(id);
+  v('sat-max-push-val').textContent = v('sat-max-push').value + 'px';
+  v('sat-falloff-val').textContent  = v('sat-falloff').value  + 'px';
+  v('sat-radius-val').textContent   = v('sat-radius').value   + 'px';
+  v('sat-ambient-val').textContent  = v('sat-ambient').value  + 'px';
+  v('sat-swap-val').textContent     = v('sat-swap').value     + 'px';
   clearTimeout(_satTimer);
-  _satTimer = setTimeout(initSAT, 300);
+  _satTimer = setTimeout(function () {
+    const iframe = document.getElementById('sat-iframe');
+    if (!iframe) return;
+    iframe.contentWindow.postMessage({
+      type: 'sat-init',
+      opts: {
+        maxPush:         parseInt(v('sat-max-push').value),
+        falloffY:        parseInt(v('sat-falloff').value),
+        iconRadius:      parseInt(v('sat-radius').value),
+        ambient:         parseInt(v('sat-ambient').value),
+        swapThresholdPx: parseInt(v('sat-swap').value),
+      }
+    }, '*');
+  }, 350);
 }
 </script>
 </body>
