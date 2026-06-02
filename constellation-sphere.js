@@ -109,11 +109,22 @@
       this._build();
       this._rafId = requestAnimationFrame(t => { this._lastT = t; this._tick(t); });
       window.addEventListener('resize', this._onResize = () => this._resize());
+      // pointerenter/pointerleave on the host element is the most reliable hover detection.
+      // Unlike pointermove+getBoundingClientRect, it fires immediately on entry/exit without
+      // requiring cursor movement. Moving between shadow DOM children (.three ↔ .names) does
+      // NOT trigger these events since the cursor stays within the host's bounds.
+      this._onPointerEnter = () => { this._isHovered = true; };
+      this._onPointerLeave = () => { this._isHovered = false; };
+      this.addEventListener('pointerenter', this._onPointerEnter);
+      this.addEventListener('pointerleave', this._onPointerLeave);
     }
 
     disconnectedCallback() {
       cancelAnimationFrame(this._rafId);
       window.removeEventListener('resize', this._onResize);
+      this.removeEventListener('pointerenter', this._onPointerEnter);
+      this.removeEventListener('pointerleave', this._onPointerLeave);
+      this._isHovered = false;
     }
 
     _build() {
@@ -228,14 +239,14 @@
       container.addEventListener('pointerup',     endDrag);
       container.addEventListener('pointercancel', endDrag);
 
-      // Hover-pause — only on .three (the 3D sphere area), not the whole component.
-      container.addEventListener('mouseenter', () => { this._isHovered = true; });
-      container.addEventListener('mouseleave', () => { this._isHovered = false; });
-
-      // Hover names
+      // Name list hover: dim others, pulse mapped icon, pause sphere.
+      // _isHovered is driven by pointerenter/leave on the host (connectedCallback).
+      // We also force _isHovered = true here so the sphere always pauses while a name
+      // is hovered — regardless of whether the host's pointerenter fired yet.
       const items = [...ul.querySelectorAll('li')];
       items.forEach((li, i) => {
         li.addEventListener('mouseenter', () => {
+          this._isHovered = true;   // guarantee pause while hovering a name
           ul.classList.add('is-hovered');
           items.forEach(x => x.classList.remove('is-active'));
           li.classList.add('is-active');
@@ -246,6 +257,8 @@
         ul.classList.remove('is-hovered');
         items.forEach(x => x.classList.remove('is-active'));
         this.pulse(null);
+        // Don't reset _isHovered here — cursor may still be over the sphere area.
+        // pointerleave on the host handles that when cursor fully exits the component.
       });
     }
 
@@ -266,7 +279,9 @@
         obj.quaternion.copy(this._invQuat);
         const wp   = obj.position.clone().applyMatrix4(m);
         const norm = (wp.z + R) / (2 * R);
-        el.style.opacity = (0.40 + 0.60 * norm).toFixed(3);
+        // Pulsed icon always shows at full opacity so the glow is visible regardless
+        // of where it sits on the sphere. Depth-based fade applies to all others.
+        el.style.opacity = el.classList.contains('is-pulse') ? '1' : (0.40 + 0.60 * norm).toFixed(3);
       });
 
       this._renderer.render(this._scene, this._camera);

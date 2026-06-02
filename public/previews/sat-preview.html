@@ -6,14 +6,81 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{background:#EBEBE5;color:#0A0A0A;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;overflow-y:auto;}
-#icon-stage{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;z-index:10;pointer-events:none;}
+
+@font-face {
+  font-family: 'Alpha Lyrae';
+  src: url('../fonts/AlphaLyrae-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Silkscreen';
+  src: url('../fonts/silkscreen-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+body{
+  background:#EBEBE5;
+  color:#0A0A0A;
+  font-family:'Helvetica Neue',Arial,sans-serif;
+  overflow-y:auto;
+}
+#icon-stage{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:72px;height:72px;
+  z-index:10;pointer-events:none;
+}
 #icon-slot{position:absolute;inset:0;}
-.rows{padding:46vh 0;display:flex;flex-direction:column;align-items:center;}
-.row{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;border-bottom:1px solid rgba(10,10,10,.14);width:560px;max-width:90%;}
-.row:first-child{border-top:1px solid rgba(10,10,10,.14);}
-.lbl{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:rgba(10,10,10,.45);will-change:transform;}
-.val{font-size:14px;font-weight:400;color:#0A0A0A;text-align:right;will-change:transform;}
+
+.rows{
+  /* top padding > 50vh → first row starts below the fixed icon */
+  /* bottom padding < 50vh → last row ends above icon when fully scrolled */
+  padding-top: 70vh;
+  padding-bottom: 58vh;   /* > 50vh so last row ends above the fixed icon */
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/*
+  Rows are CENTERED — label and value sit close together at the midline.
+  The icon passes between them and the airflow pushes them apart.
+  With ambient:0, text only moves when the icon geometrically overlaps the text zone.
+*/
+.row{
+  display:flex;
+  justify-content:center;
+  align-items:baseline;
+  gap:48px;
+  padding:13px 0;
+  width:560px;
+  max-width:90%;
+}
+
+.lbl{
+  font-family:'Silkscreen',monospace;
+  font-size:9px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:rgba(10,10,10,.4);
+  will-change:transform;
+  text-align:right;
+  min-width:90px;
+}
+.val{
+  font-family:'Alpha Lyrae','Helvetica Neue',Arial,sans-serif;
+  font-size:16px;
+  font-weight:500;
+  color:#0A0A0A;
+  text-align:left;
+  will-change:transform;
+  letter-spacing:.01em;
+  min-width:160px;
+}
 </style>
 </head>
 <body>
@@ -37,28 +104,31 @@ body{background:#EBEBE5;color:#0A0A0A;font-family:-apple-system,BlinkMacSystemFo
 </div>
 <script src="../scroll-airflow-text.js"></script>
 <script>
-function enc(s){return 'data:image/svg+xml,'+encodeURIComponent(s);}
-var A='stroke="#0A0A0A" stroke-width="1.5" stroke-linecap="round"';
+/* Use the 4 custom icons from public/icons/ */
 var ICONS=[
-  enc('<svg viewBox="0 0 32 32" fill="none" '+A+' xmlns="http://www.w3.org/2000/svg"><line x1="16" y1="3" x2="16" y2="29"/><line x1="3" y1="16" x2="29" y2="16"/><line x1="7" y1="7" x2="25" y2="25"/><line x1="25" y1="7" x2="7" y2="25"/></svg>'),
-  enc('<svg viewBox="0 0 32 32" fill="none" '+A+' xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="11"/><circle cx="16" cy="16" r="5.5"/><circle cx="16" cy="16" r="1.5" fill="#0A0A0A" stroke="none"/></svg>'),
-  enc('<svg viewBox="0 0 32 32" fill="none" '+A+' stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M16 3L29 16L16 29L3 16Z"/><circle cx="16" cy="16" r="4.5"/></svg>'),
-  enc('<svg viewBox="0 0 32 32" fill="none" '+A+' xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="11"/><path d="M16 5 Q23 16 16 27"/><path d="M16 5 Q9 16 16 27"/><line x1="5" y1="16" x2="27" y2="16"/></svg>'),
+  '../icons/save-time.svg',
+  '../icons/contractors.svg',
+  '../icons/relationships.svg',
+  '../icons/xuanyan.svg',
 ];
 var _sat=null;
 function init(opts){
   if(_sat){
-    // Update opts in-place — keeps scroll listener alive, no flicker
     Object.assign(_sat.opt,opts||{});
     _sat.refresh();
     return;
   }
   _sat=new ScrollAirflowText({
-    iconEl:document.getElementById('icon-slot'),
-    icons:ICONS,
-    cells:'[data-push]',
-    sideOf:function(el){return el.classList.contains('lbl')?-1:1;},
-    maxPush:280,falloffY:320,iconRadius:90,ambient:60,swapThresholdPx:300
+    iconEl:    document.getElementById('icon-slot'),
+    icons:     ICONS,
+    cells:     '[data-push]',
+    /* label is left of center (sideSign = -1), value is right (sideSign = +1) */
+    sideOf:    function(el){return el.classList.contains('lbl')?-1:1;},
+    maxPush:   200,
+    falloffY:  280,
+    iconRadius:110,  /* large enough to reach the centered text */
+    ambient:   0,
+    swapThresholdPx:300
   });
 }
 init();

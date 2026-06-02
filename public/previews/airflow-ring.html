@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+
+body{
+  background:#F0EDE5;
+  cursor:none;
+  font-family:'Helvetica Neue',Arial,sans-serif;
+}
+
+/* ── Ring stage ── */
+#stage{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  perspective:900px;
+  perspective-origin:50% 50%;
+}
+
+#ring{
+  position:relative;
+  width:0;height:0;
+  transform-style:preserve-3d;
+  transition:transform 2.8s cubic-bezier(.22,1,.36,1);
+}
+#ring.idle{
+  animation:ringDrift 9s ease-in-out infinite alternate;
+}
+@keyframes ringDrift{
+  from{transform:rotateX(4deg) rotateY(-3deg)}
+  to  {transform:rotateX(-3deg) rotateY(5deg)}
+}
+
+/* ── Cards ── */
+.card{
+  position:absolute;
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.face{
+  position:absolute;
+  inset:0;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  border-radius:5px;
+  overflow:hidden;
+}
+.face img{
+  display:block;
+  width:100%;height:100%;
+  object-fit:cover;
+  pointer-events:none;
+  user-select:none;
+}
+.face.front{transform:rotateY(0deg)}
+.face.back {
+  transform:rotateY(180deg);
+  filter:brightness(0.9) saturate(0.8);
+}
+/* grain on back */
+.face.back::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+  opacity:.25;
+  pointer-events:none;
+  border-radius:5px;
+}
+
+/* ── Centre copy ── */
+#centre{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:4;
+  pointer-events:none;
+  text-align:center;
+  padding:0 40px;
+}
+#centerH{
+  font-size:14px;
+  font-weight:400;
+  letter-spacing:.02em;
+  color:#15130F;
+  line-height:1.45;
+  max-width:240px;
+}
+#centerSub{
+  margin-top:18px;
+  font-size:8px;
+  letter-spacing:.34em;
+  text-transform:uppercase;
+  color:rgba(21,19,15,.45);
+}
+
+/* ── Cursor ── */
+#cursorGlow{
+  position:fixed;
+  width:80px;height:80px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 70%);
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:50;
+  opacity:0;
+  transition:opacity .25s;
+}
+#cursorGlow.off{opacity:0!important}
+#cursorDot{
+  position:fixed;
+  width:5px;height:5px;
+  border-radius:50%;
+  background:#15130F;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:51;
+  opacity:0;
+  transition:opacity .25s;
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="ring" class="idle"></div>
+</div>
+<div id="centre">
+  <div id="centerH">24 cards orbit a centre.<br>Move your cursor to feel the wind.</div>
+  <div id="centerSub">Scroll Airflow Ring</div>
+</div>
+<div id="cursorGlow"></div>
+<div id="cursorDot"></div>
+
+<script src="../airflow-ring.js"></script>
+<script>
+// Receive config updates from parent frame
+window.AnimConfig = window.AnimConfig || {};
+window.addEventListener('message', function(e){
+  if (!e.data || e.data.type !== 'ar-init') return;
+  var opts = e.data.opts;
+  if (typeof window.AnimConfig !== 'undefined') {
+    Object.assign(window.AnimConfig, opts);
+  }
+  if (opts.count !== undefined || opts.radius !== undefined || opts.cardSize !== undefined) {
+    if (typeof window.rebuildCards === 'function') {
+      window.rebuildCards({
+        count:   opts.count   || 24,
+        sizeKey: opts.cardSize || 'm',
+        radius:  opts.radius  || 250,
+      });
+    }
+  }
+});
+</script>
+</body>
+</html>
