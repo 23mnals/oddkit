@@ -96,7 +96,7 @@
   window.rebuildCards = rebuildCards;
 
   // initial build
-  rebuildCards({ count: 24, sizeKey: 'm', radius: 250 });
+  rebuildCards({ count: 24, sizeKey: 's', radius: 250 });
 
   // ---- Mouse tracking -------------------------------------------------------
   let mx = -99999, my = -99999;   // mouse coords relative to viewport center

@@ -155,10 +155,18 @@ window.addEventListener('message', function(e){
     if (typeof window.rebuildCards === 'function') {
       window.rebuildCards({
         count:   opts.count   || 24,
-        sizeKey: opts.cardSize || 'm',
+        sizeKey: opts.cardSize || 's',
         radius:  opts.radius  || 250,
       });
     }
+  }
+  if (opts.heading !== undefined) {
+    var h = document.getElementById('centerH');
+    if (h) h.innerHTML = opts.heading.replace(/\n/g, '<br>');
+  }
+  if (opts.subline !== undefined) {
+    var s = document.getElementById('centerSub');
+    if (s) s.textContent = opts.subline;
   }
 });
 </script>

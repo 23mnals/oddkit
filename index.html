@@ -1362,10 +1362,25 @@ new AirflowRing({
               <div class="cp-field">
                 <div class="cp-field-label">Card size</div>
                 <div class="cp-toggle" id="ar-size-toggle">
-                  <button class="cp-toggle-btn" onclick="arSetSize('s',this)">S</button>
-                  <button class="cp-toggle-btn active" onclick="arSetSize('m',this)">M</button>
+                  <button class="cp-toggle-btn active" onclick="arSetSize('s',this)">S</button>
+                  <button class="cp-toggle-btn" onclick="arSetSize('m',this)">M</button>
                   <button class="cp-toggle-btn" onclick="arSetSize('l',this)">L</button>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cp-group">
+            <div class="cp-group-label">Content</div>
+            <div class="cp-controls" style="flex-direction:column;align-items:flex-start">
+              <div class="cp-field" style="width:100%">
+                <div class="cp-field-label">Centre heading</div>
+                <textarea class="cp-textarea" id="ar-heading" rows="2" oninput="arUpdate()" style="max-width:360px">24 cards orbit a centre.
+Move your cursor to feel the wind.</textarea>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Subline</div>
+                <input type="text" class="cp-textarea" id="ar-subline" value="Airflow Ring" oninput="arUpdate()" style="max-width:220px;min-height:0;padding:7px 12px;resize:none">
               </div>
             </div>
           </div>
@@ -1729,11 +1744,12 @@ function satUpdate() {
 }
 
 /* ═══ Airflow Ring customization ═══ */
-let _arMode = 'push', _arAxis = 'y', _arCount = '24', _arSize = 'm';
+let _arMode = 'push', _arAxis = 'y', _arCount = '24', _arSize = 's';
 let _arTimer;
 
 function _arPost(extra) {
   const v = id => document.getElementById(id);
+  const headingEl = v('ar-heading'), sublineEl = v('ar-subline');
   const opts = Object.assign({
     windMode:    _arMode,
     flipAxis:    _arAxis,
@@ -1744,6 +1760,8 @@ function _arPost(extra) {
     count:       parseInt(_arCount),
     cardSize:    _arSize,
     radius:      parseInt(v('ar-radius').value),
+    heading:     headingEl ? headingEl.value : undefined,
+    subline:     sublineEl ? sublineEl.value : undefined,
   }, extra || {});
   const iframe = document.getElementById('ar-iframe');
   if (!iframe) return;
