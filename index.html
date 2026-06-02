@@ -4,24 +4,38 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Oddkit — Component Library</title>
-<!-- Three.js r140 global builds — must come before constellation-sphere.js -->
-<script src="https://unpkg.com/three@0.140.0/build/three.min.js"></script>
-<script src="https://unpkg.com/three@0.140.0/examples/js/renderers/CSS3DRenderer.js"></script>
+<!-- Three.js r140 — local copy, no CDN dependency -->
+<script src="public/three.min.js"></script>
+<script src="public/CSS3DRenderer.js"></script>
 <script src="constellation-sphere.js"></script>
 <script src="public/scroll-airflow-text.js"></script>
 <!-- Favicon: staircase mark on dark bg -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%230A0A0A'/%3E%3Crect x='4' y='5' width='16' height='6' fill='%23EBEBE5'/%3E%3Crect x='9' y='12' width='16' height='6' fill='%23EBEBE5'/%3E%3Crect x='14' y='19' width='16' height='6' fill='%23EBEBE5'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
+/* Self-hosted fonts — no CDN dependency */
 @font-face {
   font-family: 'Alpha Lyrae';
-  src: url('https://cdn.jsdelivr.net/gh/vegaprotocol/alpha-lyrae/AlphaLyrae-Medium.woff2') format('woff2'),
-       url('https://cdn.jsdelivr.net/gh/vegaprotocol/alpha-lyrae/AlphaLyrae-Medium.woff') format('woff');
+  src: url('public/fonts/AlphaLyrae-Medium.otf') format('opentype');
   font-weight: 500;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Silkscreen';
+  src: url('public/fonts/silkscreen-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Silkscreen';
+  src: url('public/fonts/silkscreen-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
 }
 </style>
 <style>
@@ -106,8 +120,8 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--ink);color:var(--
 .prompt-btn:hover{opacity:.75}
 .prompt-btn.copied{background:transparent;color:var(--ink)}
 .pane{display:none}.pane.vis{display:block}
-.preview-wrap{height:1000px;overflow:hidden;position:relative;background:#EBEBE5}
-cube-word-stack{min-height:0!important;height:1000px!important}
+.preview-wrap{height:700px;overflow:hidden;position:relative;background:#EBEBE5}
+cube-word-stack{min-height:0!important;height:700px!important}
 cube-word-stack>img[data-anchor]{display:none!important}
 .code-pane{overflow:auto;max-height:600px;background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:12px;line-height:1.7;padding:28px 32px;white-space:pre}
 
@@ -163,7 +177,7 @@ cube-word-stack>img[data-anchor]{display:none!important}
 input[type="file"]{display:none}
 
 /* ── Staircase demo ── */
-.sr-demo-wrap{position:relative;height:790px;overflow:hidden;background:var(--ink);display:flex;align-items:center;justify-content:center}
+.sr-demo-wrap{position:relative;height:700px;overflow:hidden;background:var(--ink);display:flex;align-items:center;justify-content:center}
 #sr-demo-curtain{position:absolute!important;z-index:5!important}
 .sr-demo-inner{text-align:center}
 .sr-demo-label{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:rgba(235,235,229,.3);margin-bottom:10px}
@@ -308,6 +322,8 @@ g.StaircaseReveal=SR;
       <div class="nav-item" onclick="navigate('staircase-reveal',this)">Staircase Reveal</div>
       <div class="nav-group-label">3D</div>
       <div class="nav-item" onclick="navigate('constellation-sphere',this)">Constellation Sphere</div>
+      <div class="nav-group-label">Interactive</div>
+      <div class="nav-item" onclick="navigate('airflow-ring',this)">Airflow Ring</div>
     </nav>
     <div class="sidebar-footer"><span class="version">ODDKIT / 2026 ⚡</span></div>
   </aside>
@@ -341,16 +357,16 @@ g.StaircaseReveal=SR;
                 text="A|collective|of|Odd Minds|brings|new|angles|with|meaning"
                 bg="#EBEBE5" block="#FFFFFF" ink="#0A0A0A"
                 font='"Georgia",serif'
-                font-min="34px" font-vw="4.4vw" font-max="72px"
+                font-min="34px" font-vw="4.4vw" font-max="45px"
                 intro-stagger="110" push-max-x="70">
                 <img id="cws-icon-0" data-anchor="top-right"    data-offset="46" data-size="72" data-vertical="7%"
-                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1OCA1OCI+PGNpcmNsZSBjeD0iMjkiIGN5PSIyOSIgcj0iMjEiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48bGluZSB4MT0iMjkiIHkxPSI3IiB4Mj0iMjkiIHkyPSI0MyIgc3Ryb2tlPSIjMEEwQTBBIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxsaW5lIHgxPSI3IiB5MT0iMjkiIHgyPSI0MyIgeTI9IjI5IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41Ii8+PC9zdmc+" alt="">
-                <img id="cws-icon-1" data-anchor="top-left"     data-offset="32" data-size="76" data-vertical="20%"
-                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MiA2MiI+PHBhdGggZD0iTTMxIDYgTDU2IDUwIEg2IFoiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48L3N2Zz4=" alt="">
+                  src="public/icons/save-time.svg" alt="">
+                <img id="cws-icon-1" data-anchor="top-left"     data-offset="230" data-size="76" data-vertical="20%"
+                  src="public/icons/contractors.svg" alt="">
                 <img id="cws-icon-2" data-anchor="bottom-left"  data-offset="150" data-size="64" data-vertical="22%"
-                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjM4IiBoZWlnaHQ9IjM4IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiByeD0iMyIvPjxwYXRoIGQ9Ik0xNSAyNWgyME0yNSAxNXYyMCIgc3Ryb2tlPSIjMEEwQTBBIiBzdHJva2Utd2lkdGg9IjEuNSIvPjwvc3ZnPg==" alt="">
+                  src="public/icons/relationships.svg" alt="">
                 <img id="cws-icon-3" data-anchor="bottom-right" data-offset="80"  data-size="68" data-vertical="14%"
-                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NCA1NCI+PGNpcmNsZSBjeD0iMjciIGN5PSIyNyIgcj0iMTkiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48Y2lyY2xlIGN4PSIyNyIgY3k9IjI3IiByPSI2IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIi8+PC9zdmc+" alt="">
+                  src="public/icons/xuanyan.svg" alt="">
               </cube-word-stack>
             </div>
           </div>
@@ -359,7 +375,7 @@ g.StaircaseReveal=SR;
   text="A|collective|of|Odd Minds|brings|new|angles|with|meaning"
   bg="#EBEBE5" block="#FFFFFF" ink="#0A0A0A"
   font='"Georgia", serif'
-  font-min="34px" font-vw="4.4vw" font-max="72px"&gt;
+  font-min="34px" font-vw="4.4vw" font-max="45px"&gt;
 
   &lt;img data-anchor="top-right"    data-offset="46"  data-size="72"  data-vertical="7%"   src="/icons/crosshair.svg" alt=""&gt;
   &lt;img data-anchor="top-left"     data-offset="32"  data-size="76"  data-vertical="20%"  src="/icons/triangle.svg" alt=""&gt;
@@ -425,8 +441,8 @@ g.StaircaseReveal=SR;
               <div class="cp-field">
                 <div class="cp-field-label">Max size</div>
                 <div class="cp-range-wrap">
-                  <input type="range" min="44" max="100" value="72" id="cws-fmax" oninput="cwsAttr('font-max',this.value+'px');document.getElementById('cws-fmax-val').textContent=this.value+'px'">
-                  <span class="cp-range-val" id="cws-fmax-val">72px</span>
+                  <input type="range" min="28" max="80" value="45" id="cws-fmax" oninput="cwsAttr('font-max',this.value+'px');document.getElementById('cws-fmax-val').textContent=this.value+'px'">
+                  <span class="cp-range-val" id="cws-fmax-val">45px</span>
                 </div>
               </div>
             </div>
@@ -476,7 +492,7 @@ meaning</textarea>
             <div class="icon-slots">
               <div class="icon-slot" data-anchor="top-right">
                 <label class="icon-thumb-wrap" for="icon-up-0">
-                  <img id="icon-preview-0" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1OCA1OCI+PGNpcmNsZSBjeD0iMjkiIGN5PSIyOSIgcj0iMjEiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48bGluZSB4MT0iMjkiIHkxPSI3IiB4Mj0iMjkiIHkyPSI0MyIgc3Ryb2tlPSIjMEEwQTBBIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxsaW5lIHgxPSI3IiB5MT0iMjkiIHgyPSI0MyIgeTI9IjI5IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41Ii8+PC9zdmc+" alt="">
+                  <img id="icon-preview-0" src="public/icons/save-time.svg" alt="">
                   <div class="icon-upload-overlay">Upload</div>
                 </label>
                 <input type="file" id="icon-up-0" accept="image/*" onchange="uploadIcon(0,this)">
@@ -484,7 +500,7 @@ meaning</textarea>
               </div>
               <div class="icon-slot" data-anchor="top-left">
                 <label class="icon-thumb-wrap" for="icon-up-1">
-                  <img id="icon-preview-1" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MiA2MiI+PHBhdGggZD0iTTMxIDYgTDU2IDUwIEg2IFoiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48L3N2Zz4=" alt="">
+                  <img id="icon-preview-1" src="public/icons/contractors.svg" alt="">
                   <div class="icon-upload-overlay">Upload</div>
                 </label>
                 <input type="file" id="icon-up-1" accept="image/*" onchange="uploadIcon(1,this)">
@@ -492,7 +508,7 @@ meaning</textarea>
               </div>
               <div class="icon-slot" data-anchor="bottom-left">
                 <label class="icon-thumb-wrap" for="icon-up-2">
-                  <img id="icon-preview-2" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjM4IiBoZWlnaHQ9IjM4IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiByeD0iMyIvPjxwYXRoIGQ9Ik0xNSAyNWgyME0yNSAxNXYyMCIgc3Ryb2tlPSIjMEEwQTBBIiBzdHJva2Utd2lkdGg9IjEuNSIvPjwvc3ZnPg==" alt="">
+                  <img id="icon-preview-2" src="public/icons/relationships.svg" alt="">
                   <div class="icon-upload-overlay">Upload</div>
                 </label>
                 <input type="file" id="icon-up-2" accept="image/*" onchange="uploadIcon(2,this)">
@@ -500,7 +516,7 @@ meaning</textarea>
               </div>
               <div class="icon-slot" data-anchor="bottom-right">
                 <label class="icon-thumb-wrap" for="icon-up-3">
-                  <img id="icon-preview-3" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NCA1NCI+PGNpcmNsZSBjeD0iMjciIGN5PSIyNyIgcj0iMTkiIHN0cm9rZT0iIzBBMEEwQSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48Y2lyY2xlIGN4PSIyNyIgY3k9IjI3IiByPSI2IiBzdHJva2U9IiMwQTBBMEEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIi8+PC9zdmc+" alt="">
+                  <img id="icon-preview-3" src="public/icons/xuanyan.svg" alt="">
                   <div class="icon-upload-overlay">Upload</div>
                 </label>
                 <input type="file" id="icon-up-3" accept="image/*" onchange="uploadIcon(3,this)">
@@ -786,7 +802,7 @@ window.addEventListener('wheel', (e) => {
           </div>
           <div class="pane vis" id="cs-pane-preview">
             <!-- sphere is created dynamically on navigate to avoid display:none init issue -->
-            <div id="cs-preview-wrap" style="height:660px;position:relative;overflow:hidden;background:#0A0A0A"></div>
+            <div id="cs-preview-wrap" style="height:700px;position:relative;overflow:hidden;background:#0A0A0A"></div>
           </div>
           <div class="pane" id="cs-pane-code">
             <pre class="code-pane" id="cs-code-out">&lt;!-- 1. Importmap (before your scripts) --&gt;
@@ -996,7 +1012,7 @@ Quinn</textarea>
           </div>
           <div class="pane vis" id="sat-pane-preview" style="padding:0;line-height:0">
             <iframe id="sat-iframe" src="public/previews/sat-preview.html"
-              style="width:100%;height:640px;border:none;display:block;"
+              style="width:100%;height:700px;border:none;display:block;"
               scrolling="yes"></iframe>
           </div>
           <div class="pane" id="sat-pane-code">
@@ -1064,8 +1080,8 @@ new ScrollAirflowText({
               <div class="cp-field">
                 <div class="cp-field-label">Ambient min</div>
                 <div class="cp-range-wrap">
-                  <input type="range" min="0" max="200" step="5" value="80" id="sat-ambient" oninput="satUpdate()">
-                  <span class="cp-range-val" id="sat-ambient-val">80px</span>
+                  <input type="range" min="0" max="200" step="5" value="0" id="sat-ambient" oninput="satUpdate()">
+                  <span class="cp-range-val" id="sat-ambient-val">0px</span>
                 </div>
               </div>
             </div>
@@ -1082,6 +1098,63 @@ new ScrollAirflowText({
                 </div>
               </div>
             </div>
+          </div>
+
+          <div class="cp-group">
+            <div class="cp-group-label">Icons (hover to replace)</div>
+            <div class="icon-slots">
+              <div class="icon-slot">
+                <label class="icon-thumb-wrap" for="sat-icon-up-0">
+                  <img id="sat-icon-preview-0" src="public/icons/save-time.svg" alt="">
+                  <div class="icon-upload-overlay">Upload</div>
+                </label>
+                <input type="file" id="sat-icon-up-0" accept="image/*,image/svg+xml" onchange="satUploadIcon(0,this)">
+                <div class="icon-slot-label">Icon 1</div>
+              </div>
+              <div class="icon-slot">
+                <label class="icon-thumb-wrap" for="sat-icon-up-1">
+                  <img id="sat-icon-preview-1" src="public/icons/contractors.svg" alt="">
+                  <div class="icon-upload-overlay">Upload</div>
+                </label>
+                <input type="file" id="sat-icon-up-1" accept="image/*,image/svg+xml" onchange="satUploadIcon(1,this)">
+                <div class="icon-slot-label">Icon 2</div>
+              </div>
+              <div class="icon-slot">
+                <label class="icon-thumb-wrap" for="sat-icon-up-2">
+                  <img id="sat-icon-preview-2" src="public/icons/relationships.svg" alt="">
+                  <div class="icon-upload-overlay">Upload</div>
+                </label>
+                <input type="file" id="sat-icon-up-2" accept="image/*,image/svg+xml" onchange="satUploadIcon(2,this)">
+                <div class="icon-slot-label">Icon 3</div>
+              </div>
+              <div class="icon-slot">
+                <label class="icon-thumb-wrap" for="sat-icon-up-3">
+                  <img id="sat-icon-preview-3" src="public/icons/xuanyan.svg" alt="">
+                  <div class="icon-upload-overlay">Upload</div>
+                </label>
+                <input type="file" id="sat-icon-up-3" accept="image/*,image/svg+xml" onchange="satUploadIcon(3,this)">
+                <div class="icon-slot-label">Icon 4</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cp-group">
+            <div class="cp-group-label">Row content (Label | Value, one per line)</div>
+            <textarea class="cp-textarea" id="sat-rows-text" rows="8" oninput="satUpdateRows()" style="max-width:560px">Studio | Somewhere Creative
+Founded | 2021
+Team | 12 people
+Services | Brand, Motion, Code
+Location | San Francisco, CA
+Time Zone | GMT −8
+Latest Work | Oddkit 0.1
+Projects | 47 shipped
+Awards | 3 × Awwwards
+Press | It's Nice That
+Education | RISD, RCA
+Tools | Figma, After Effects
+Stack | React, Three.js
+Open Source | oddkit · motion-kit
+Availability | Open for 2026</textarea>
           </div>
 
         </div>
@@ -1143,9 +1216,211 @@ new ScrollAirflowText({
     </section><!-- /scroll-airflow-text -->
 
 
+    <!-- ══ PAGE: Airflow Ring ══ -->
+    <section id="page-airflow-ring" class="page">
+
+      <div class="comp-header">
+        <div class="comp-meta">
+          <span class="comp-category">Interactive</span>
+          <div class="tags">
+            <span class="tag">Vanilla JS</span><span class="tag">Mouse-driven</span>
+            <span class="tag">Zero Dependencies</span>
+          </div>
+        </div>
+        <h1 class="comp-title">Airflow<br>Ring</h1>
+        <p class="comp-desc">24 cards orbit a ring. Move your cursor into the field — each card is pushed radially by a smoothstep airflow, flips on its local Y-axis to reveal its back face, then lerp-damps back when you leave. Wind mode, flip axis, influence radius and follow speed are all tunable.</p>
+      </div>
+
+      <!-- Preview -->
+      <div class="section">
+        <div class="section-eyebrow">Preview</div>
+        <div class="preview-card">
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('ar','preview',this)">Preview</button>
+            <button class="tab-btn" onclick="switchTab('ar','code',this)">Code</button>
+            <div class="tab-actions">
+              <button class="copy-btn" id="ar-copy" onclick="copyCode('ar-code-out')" style="display:none">Copy</button>
+              <button class="prompt-btn" onclick="copyPrompt('ar',this)">Copy Prompt</button>
+            </div>
+          </div>
+          <div class="pane vis" id="ar-pane-preview" style="padding:0;line-height:0">
+            <iframe id="ar-iframe" src="public/previews/airflow-ring.html"
+              style="width:100%;height:700px;border:none;display:block;"
+              scrolling="no"></iframe>
+          </div>
+          <div class="pane" id="ar-pane-code">
+            <pre class="code-pane" id="ar-code-out">&lt;script src="airflow-ring.js"&gt;&lt;/script&gt;
+
+&lt;!-- Stage: needs explicit size + positioning --&gt;
+&lt;div id="ring-host" style="position:fixed;inset:0;"&gt;&lt;/div&gt;
+
+&lt;!-- Optional centre copy --&gt;
+&lt;div style="position:fixed;top:50%;left:50%;
+            transform:translate(-50%,-50%);z-index:4;
+            text-align:center;pointer-events:none;"&gt;
+  Your headline here.
+&lt;/div&gt;
+
+&lt;script&gt;
+new AirflowRing({
+  mount:       '#ring-host',
+  images:      [
+    'https://picsum.photos/id/1015/200/280',
+    'https://picsum.photos/id/1025/200/280',
+    // …at least 24 URLs; shorter arrays are cycled automatically
+  ],
+  count:       24,
+  radius:      250,
+  windMode:    'push',   // push | pull | vortex | calm
+  flipAxis:    'y',      // y | x | tumble
+  flipMax:     180,
+  influence:   240,
+  pushMax:     95,
+  followSpeed: 0.13,
+  idleDrift:   true,
+  cursorGlow:  true,
+});
+&lt;/script&gt;</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customize -->
+      <div class="section">
+        <div class="section-eyebrow">Customize</div>
+        <div class="customize-panel">
+
+          <div class="cp-group">
+            <div class="cp-group-label">Wind physics</div>
+            <div class="cp-controls">
+              <div class="cp-field">
+                <div class="cp-field-label">Wind mode</div>
+                <div class="cp-toggle" id="ar-mode-toggle">
+                  <button class="cp-toggle-btn active" onclick="arSetMode('push',this)">Push</button>
+                  <button class="cp-toggle-btn" onclick="arSetMode('pull',this)">Pull</button>
+                  <button class="cp-toggle-btn" onclick="arSetMode('vortex',this)">Vortex</button>
+                  <button class="cp-toggle-btn" onclick="arSetMode('calm',this)">Calm</button>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Flip axis</div>
+                <div class="cp-toggle" id="ar-axis-toggle">
+                  <button class="cp-toggle-btn active" onclick="arSetAxis('y',this)">Y</button>
+                  <button class="cp-toggle-btn" onclick="arSetAxis('x',this)">X</button>
+                  <button class="cp-toggle-btn" onclick="arSetAxis('tumble',this)">Tumble</button>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Influence radius</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="80" max="500" step="10" value="240" id="ar-influence" oninput="arUpdate()">
+                  <span class="cp-range-val" id="ar-influence-val">240px</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Push force</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="0" max="200" step="5" value="95" id="ar-push" oninput="arUpdate()">
+                  <span class="cp-range-val" id="ar-push-val">95px</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Flip range</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="0" max="360" step="10" value="180" id="ar-flip" oninput="arUpdate()">
+                  <span class="cp-range-val" id="ar-flip-val">180°</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Follow speed</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="4" max="40" step="1" value="13" id="ar-speed" oninput="arUpdate()">
+                  <span class="cp-range-val" id="ar-speed-val">13%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cp-group">
+            <div class="cp-group-label">Ring layout</div>
+            <div class="cp-controls">
+              <div class="cp-field">
+                <div class="cp-field-label">Card count</div>
+                <div class="cp-toggle" id="ar-count-toggle">
+                  <button class="cp-toggle-btn" onclick="arSetCount('12',this)">12</button>
+                  <button class="cp-toggle-btn active" onclick="arSetCount('24',this)">24</button>
+                  <button class="cp-toggle-btn" onclick="arSetCount('32',this)">32</button>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Ring radius</div>
+                <div class="cp-range-wrap">
+                  <input type="range" min="120" max="380" step="10" value="250" id="ar-radius" oninput="arUpdate()">
+                  <span class="cp-range-val" id="ar-radius-val">250px</span>
+                </div>
+              </div>
+              <div class="cp-field">
+                <div class="cp-field-label">Card size</div>
+                <div class="cp-toggle" id="ar-size-toggle">
+                  <button class="cp-toggle-btn" onclick="arSetSize('s',this)">S</button>
+                  <button class="cp-toggle-btn active" onclick="arSetSize('m',this)">M</button>
+                  <button class="cp-toggle-btn" onclick="arSetSize('l',this)">L</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- How it works -->
+      <div class="section">
+        <div class="section-eyebrow">How it works</div>
+        <p class="prose">On every animation frame, each card's distance to the cursor is measured. A <code>smoothstep</code> curve maps that distance to a push strength (0 when beyond <code>influence</code>, 1 when at cursor). The card is displaced radially by <code>pushMax × strength</code> and rotated by <code>flipMax × strength</code> around its local axis. All values are lerp-damped by <code>followSpeed</code> each frame — low values create trailing wake effects as cards lag behind the cursor.</p>
+      </div>
+
+      <!-- Install -->
+      <div class="section">
+        <div class="section-eyebrow">Installation</div>
+        <div class="steps">
+          <div class="step"><span class="step-num">01</span><div><div class="step-label">Include the script</div><pre class="snippet">&lt;script src="airflow-ring.js"&gt;&lt;/script&gt;</pre></div></div>
+          <div class="step"><span class="step-num">02</span><div><div class="step-label">Add a full-size mount point</div><pre class="snippet">&lt;div id="ring-host" style="position:fixed;inset:0;"&gt;&lt;/div&gt;</pre></div></div>
+          <div class="step"><span class="step-num">03</span><div><div class="step-label">Instantiate with your images</div><pre class="snippet">new AirflowRing({
+  mount:  '#ring-host',
+  images: [ '/img/01.jpg', '/img/02.jpg', /* ×24 */ ],
+  count:  24,
+  radius: 250,
+});</pre></div></div>
+        </div>
+      </div>
+
+      <!-- API -->
+      <div class="section">
+        <div class="section-eyebrow">API Reference</div>
+        <div class="prop-groups">
+          <div><div class="prop-group-name">Constructor options</div><table><thead><tr><th>Option</th><th>Default</th><th>Notes</th></tr></thead><tbody>
+            <tr><td><code>mount</code></td><td class="dash">—</td><td class="td-notes"><strong>Required.</strong> CSS selector or element. Needs explicit size + positioning.</td></tr>
+            <tr><td><code>images</code></td><td><code>[]</code></td><td class="td-notes">Image URL array. Shorter arrays cycle. Empty shows grey placeholders.</td></tr>
+            <tr><td><code>count</code></td><td><code>24</code></td><td class="td-notes">Number of cards on the ring.</td></tr>
+            <tr><td><code>radius</code></td><td><code>250</code></td><td class="td-notes">Ring radius in px.</td></tr>
+            <tr><td><code>windMode</code></td><td><code>'push'</code></td><td class="td-notes"><code>push</code> / <code>pull</code> / <code>vortex</code> / <code>calm</code></td></tr>
+            <tr><td><code>flipAxis</code></td><td><code>'y'</code></td><td class="td-notes"><code>y</code> = Y-axis flip (wind-blown) / <code>x</code> = X-axis / <code>tumble</code> = Z-plane spin</td></tr>
+            <tr><td><code>flipMax</code></td><td><code>180</code></td><td class="td-notes">Max flip angle in degrees. 180 = full face reveal.</td></tr>
+            <tr><td><code>influence</code></td><td><code>240</code></td><td class="td-notes">Mouse influence radius (px). Cards beyond this distance are unaffected.</td></tr>
+            <tr><td><code>pushMax</code></td><td><code>95</code></td><td class="td-notes">Max radial displacement (px).</td></tr>
+            <tr><td><code>followSpeed</code></td><td><code>0.13</code></td><td class="td-notes">Lerp factor per frame. Low = trailing wake, high = instant snap.</td></tr>
+            <tr><td><code>idleDrift</code></td><td><code>true</code></td><td class="td-notes">Slow 3D breathing animation on the whole ring.</td></tr>
+            <tr><td><code>cursorGlow</code></td><td><code>true</code></td><td class="td-notes">Soft glow circle + dot following the cursor.</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+
+    </section><!-- /airflow-ring -->
+
+
     <!-- Marquee -->
     <div class="marquee-wrap">
-      <span class="marquee-track">ODDKIT — COMPONENT LIBRARY<span class="mq-sep">⚡</span>CUBE WORD STACK<span class="mq-sep">⚡</span>STAIRCASE REVEAL<span class="mq-sep">⚡</span>CONSTELLATION SPHERE<span class="mq-sep">⚡</span>SCROLL AIRFLOW TEXT<span class="mq-sep">⚡</span>ZERO DEPENDENCIES<span class="mq-sep">⚡</span>WEB COMPONENTS<span class="mq-sep">⚡</span>THREE.JS<span class="mq-sep">⚡</span>ODDKIT — COMPONENT LIBRARY<span class="mq-sep">⚡</span>CUBE WORD STACK<span class="mq-sep">⚡</span>STAIRCASE REVEAL<span class="mq-sep">⚡</span>CONSTELLATION SPHERE<span class="mq-sep">⚡</span>SCROLL AIRFLOW TEXT<span class="mq-sep">⚡</span>ZERO DEPENDENCIES<span class="mq-sep">⚡</span>WEB COMPONENTS<span class="mq-sep">⚡</span>THREE.JS<span class="mq-sep">⚡</span></span>
+      <span class="marquee-track">ODDKIT — COMPONENT LIBRARY<span class="mq-sep">⚡</span>CUBE WORD STACK<span class="mq-sep">⚡</span>STAIRCASE REVEAL<span class="mq-sep">⚡</span>CONSTELLATION SPHERE<span class="mq-sep">⚡</span>SCROLL AIRFLOW TEXT<span class="mq-sep">⚡</span>AIRFLOW RING<span class="mq-sep">⚡</span>ZERO DEPENDENCIES<span class="mq-sep">⚡</span>WEB COMPONENTS<span class="mq-sep">⚡</span>ODDKIT — COMPONENT LIBRARY<span class="mq-sep">⚡</span>CUBE WORD STACK<span class="mq-sep">⚡</span>STAIRCASE REVEAL<span class="mq-sep">⚡</span>CONSTELLATION SPHERE<span class="mq-sep">⚡</span>SCROLL AIRFLOW TEXT<span class="mq-sep">⚡</span>AIRFLOW RING<span class="mq-sep">⚡</span>ZERO DEPENDENCIES<span class="mq-sep">⚡</span>WEB COMPONENTS<span class="mq-sep">⚡</span></span>
     </div>
 
   </main>
@@ -1161,14 +1436,12 @@ function navigate(slug, el) {
   el.classList.add('active');
   window.scrollTo(0, 0);
   if (slug === 'staircase-reveal') setTimeout(() => {
-    // Always reinit with matchTarget so bands match the wrap's actual background.
-    // Also pre-color the curtain container to cover the 2-frame transparent-band period.
+    // Reinit with matchTarget so bands match the wrap's actual background.
     const wrap = document.getElementById('sr-demo-wrap');
     const curtainEl = document.getElementById('sr-demo-curtain');
     const destColor = getComputedStyle(wrap).backgroundColor;
     curtainEl.style.backgroundColor = destColor;
-    srLastColor = destColor;
-    initSR(wrap, function() { curtainEl.style.backgroundColor = ''; });
+    initSR(wrap);
     demoReveal.replay();
   }, 80);
   // Sphere: wait for the custom element to register (Three.js loads async),
@@ -1280,18 +1553,15 @@ function _isDark(hex) {
   return (0.299*r + 0.587*g + 0.114*b) < 140;
 }
 
-// initSR — always pass matchTarget (DOM element whose background = destination)
+// initSR — bands are always light (#EBEBE5) so the wipe is visible against the dark demo bg.
+// matchTarget is only used in the Transition demo where the user picks a destination color.
 function initSR(matchTarget) {
   const curtainEl = document.getElementById('sr-demo-curtain');
-  // coverColor is the fallback if matchTarget is null or transparent
-  const fallback = matchTarget
-    ? getComputedStyle(matchTarget).backgroundColor
-    : '#EBEBE5';
   demoReveal = new StaircaseReveal({
     mount:       curtainEl,
     bandCount:   parseInt(document.getElementById('sr-bands').value),
-    coverColor:  fallback,
-    matchTarget: matchTarget || null,
+    coverColor:  '#EBEBE5',   /* always light — visible against the dark demo wrap */
+    matchTarget: null,         /* Transition demo sets color via replay(dir, color) */
     staggerMs:   parseInt(document.getElementById('sr-stagger').value),
     bandDur:     parseInt(document.getElementById('sr-dur').value),
     axis:        srAxis,
@@ -1328,12 +1598,12 @@ function srTransitionDemo() {
   btn.style.background = dark ? '#F0EDE5' : '#0A0A0A';
   btn.style.borderColor = dark ? '#F0EDE5' : '#0A0A0A';
 
-  // ② Pre-color curtain container = destination (eliminates transparent-band flash)
-  _srPrep(wrap);   // reads the just-set wrap background
+  // ② Pre-color curtain = destination color (eliminates transparent flash)
+  _srPrep(wrap);
 
-  // ③ Build reveal — matchTarget reads wrap → bands = destination color
-  initSR(wrap);
-  demoReveal.replay();
+  // ③ Replay with the chosen color as band color
+  initSR(null);
+  demoReveal.replay(null, color);  /* explicit color override — bands match the destination */
 }
 
 let srTimer;
@@ -1456,6 +1726,62 @@ function satUpdate() {
       }
     }, '*');
   }, 350);
+}
+
+/* ═══ Airflow Ring customization ═══ */
+let _arMode = 'push', _arAxis = 'y', _arCount = '24', _arSize = 'm';
+let _arTimer;
+
+function _arPost(extra) {
+  const v = id => document.getElementById(id);
+  const opts = Object.assign({
+    windMode:    _arMode,
+    flipAxis:    _arAxis,
+    influence:   parseInt(v('ar-influence').value),
+    pushMax:     parseInt(v('ar-push').value),
+    flipMax:     parseInt(v('ar-flip').value),
+    followSpeed: parseInt(v('ar-speed').value) / 100,
+    count:       parseInt(_arCount),
+    cardSize:    _arSize,
+    radius:      parseInt(v('ar-radius').value),
+  }, extra || {});
+  const iframe = document.getElementById('ar-iframe');
+  if (!iframe) return;
+  iframe.contentWindow.postMessage({ type: 'ar-init', opts }, '*');
+}
+function arUpdate() {
+  const v = id => document.getElementById(id);
+  v('ar-influence-val').textContent = v('ar-influence').value + 'px';
+  v('ar-push-val').textContent      = v('ar-push').value + 'px';
+  v('ar-flip-val').textContent      = v('ar-flip').value + '°';
+  v('ar-speed-val').textContent     = v('ar-speed').value + '%';
+  v('ar-radius-val').textContent    = v('ar-radius').value + 'px';
+  clearTimeout(_arTimer);
+  _arTimer = setTimeout(() => _arPost(), 250);
+}
+function arSetMode(mode, btn) {
+  _arMode = mode;
+  document.querySelectorAll('#ar-mode-toggle .cp-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _arPost();
+}
+function arSetAxis(axis, btn) {
+  _arAxis = axis;
+  document.querySelectorAll('#ar-axis-toggle .cp-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _arPost();
+}
+function arSetCount(count, btn) {
+  _arCount = count;
+  document.querySelectorAll('#ar-count-toggle .cp-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _arPost();
+}
+function arSetSize(size, btn) {
+  _arSize = size;
+  document.querySelectorAll('#ar-size-toggle .cp-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _arPost();
 }
 
 /* ═══ Copy Prompt ═══ */
@@ -1992,6 +2318,60 @@ export default function ScrollAirflowText({
 3. The page/container must have enough vertical height to scroll — \`topPadding\` and \`bottomPadding\` create the scroll room
 4. For Next.js: the \`typeof document !== 'undefined'\` guard prevents SSR errors on the portal
 5. Pass your icon images via the \`icons\` prop — SVGs at 64–80px work best; they cycle automatically on scroll`
+
+,
+
+ar: `## Integrate AirflowRing from Oddkit
+You are helping integrate a mouse-driven ring animation component into an existing page.
+
+### Component: AirflowRing
+### Source: https://23mnals.github.io/oddkit/public/airflow-ring.js
+### Dependencies: none
+
+---
+
+### What it does
+- 24 cards (configurable) orbit a circle. Each card is radially positioned with its top pointing outward.
+- When the cursor enters the influence radius, each card is pushed radially outward (or pulled / vortex) with smoothstep falloff.
+- Cards rotate on their local Y-axis (or X / tumble) up to flipMax degrees — past 90° the back face becomes visible.
+- All motion is lerp-damped per frame, creating trailing wake effects on fast cursor movement.
+- Optional: idle 3D breathing drift on the whole ring, custom cursor glow + dot.
+
+---
+
+### Minimal usage
+\`\`\`html
+<body style="cursor:none; background:#F0EDE5;">
+  <div id="ring-host" style="position:fixed;inset:0;"></div>
+
+  <script src="airflow-ring.js"><\/script>
+  <script>
+  new AirflowRing({
+    mount:  '#ring-host',
+    images: [
+      'https://picsum.photos/id/1015/200/280',
+      /* …24 URLs total, shorter arrays cycle */
+    ],
+  });
+  <\/script>
+</body>
+\`\`\`
+
+### Key options
+| Option | Default | Notes |
+|--------|---------|-------|
+| mount | — | Required. CSS selector or element. Needs size + positioning. |
+| images | [] | URL array. Cycles if shorter than count. |
+| count | 24 | Cards on the ring. |
+| radius | 250 | Ring radius (px). |
+| windMode | 'push' | push / pull / vortex / calm |
+| flipAxis | 'y' | y / x / tumble |
+| flipMax | 180 | Max flip angle (deg). 180 = full back face reveal. |
+| influence | 240 | Mouse influence radius (px). |
+| pushMax | 95 | Max radial displacement (px). |
+| followSpeed | 0.13 | Lerp factor. Low = trailing wake, high = instant snap. |
+| idleDrift | true | Slow 3D breathing on the whole ring. |
+| cursorGlow | true | Glow circle + dot at cursor. |`
 
 }; // end PROMPTS
 </script>
